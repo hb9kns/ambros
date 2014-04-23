@@ -17,3 +17,14 @@ On the hardware side, a low-cost computer and a suitable transmitter
 are needed. Depending on the chosen transmitter type, software
 drivers may be needed.
 
+---
+
+## repository structure
+
+### Home
+
+In `Home/`, contributors may create a personal directory with the
+same name as their user/account name, to store notes and other
+personal and project related information.
+Please do not tamper with other people's directories!
+
