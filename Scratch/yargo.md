@@ -1,4 +1,4 @@
-# AMBROS
+# yargo scratch file
 
 ## Ideen
 
@@ -9,9 +9,9 @@
 
 ### MIDI
 
-- [ref1]( http://www.sonicspot.com/guide/midifiles.html )
-- [ref2]( http://cs.fit.edu/~ryan/cse4051/projects/midi/midi.html )
-- [ref3]( http://faydoc.tripod.com/formats/mid.htm )
+- [midi1]( http://www.sonicspot.com/guide/midifiles.html )
+- [midi2]( http://cs.fit.edu/~ryan/cse4051/projects/midi/midi.html )
+- [midi3]( http://faydoc.tripod.com/formats/mid.htm )
 
 ---
 
@@ -21,8 +21,9 @@ Bit 7 muss gesetzt sein fuer Morsedaten, geloescht fuer Steuerdaten
 
 ### Morsedaten
 
-- Bit 7 wird geloescht, dann hoechstes gesetztes Bit gleich Startbit (erzeugt kein Signal)
-- nachfolgende Bits: 0=dit 1=dah, jeweils implizit eine Dit-Pause danach, sowie zusaetzlich zwei Dit-Pausen am Ende
+- Bit 7 wird geloescht, dann hoechstes gesetztes Bit gleich Stopbit (erzeugt kein Signal)
+- nachfolgende Bits in aufsteigender Folge (dh Beginn beim LSB, Ende beim Stopbit): 0=dit 1=dah, jeweils implizit eine Dit-Pause danach, sowie zusaetzlich zwei Dit-Pausen am Ende
+- Verarbeitung durch Rightshift, Ende wenn 1 vom Stopbit erreicht
 
 #### Spezialfaelle (mit Bit 7 bereits geloescht)
 
@@ -51,12 +52,13 @@ _Def: URLs fuer Textquellen, Rezepte (RegExp, externe Skripts etc) und Prio fuer
 
 ### Bereiter(Def:Rezepte,Def:Prio,Def:URLs)
 
-- holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit Quellenangaben u Prioritaeten) fuer `Schneider`
-- jeder `SauberText` mit PBL
+- gestartet von `Schneider`
+- holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit PBL fuer Quellenangaben u Prioritaeten)
 
 ### Sauger(Def:URLs)
 
-- holt Rohdaten von Net/Mail/File fuer `Bereiter` (mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile)
+- gestartet von `Bereiter`
+- holt Rohdaten von Net/Mail/File mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile
 
 ### Schneider(Filestatus,SauberTexte)
 
@@ -101,8 +103,8 @@ _0 ist reserviert fuer SendeText, siehe unten_
 
 ### SauberText
 
-Dateien enthalten zuerst PBL-Zeilen (alles nach zweitem SPC/TAB ist Kommentar),
-eine oder mehrere Leerzeilen, anschliessend Textzeilen
+Dateien enthalten zuerst PBL-Zeilen, eine oder mehrere Leerzeilen, anschliessend Textzeilen.
+PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Kommentar).
 
 #### Namen: PrefixPrioIndex[Suffix]
 
@@ -115,7 +117,7 @@ eine oder mehrere Leerzeilen, anschliessend Textzeilen
 #### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
 
 - `PRI` Prioritaet (1..9)
-- `EXP` Zerfallszeit [sec] fuer exponentiell(?) abnehmende Sendewahrscheinlichkeit
+- `EXP` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
 - `DUR` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
 - `TMP` Tempo [WPM], minimal 1, maximal 255
 - `GEN` Erstellungszeit [sec]
