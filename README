@@ -21,10 +21,9 @@ drivers may be needed.
 
 ## repository structure
 
-### Home
+### Scratch
 
-In `Home/`, contributors may create a personal directory with the
-same name as their user/account name, to store notes and other
+In `scratch/`, contributors may create personal files with names starting with their user/account name, to store notes and other
 personal and project related information.
-Please do not tamper with other people's directories!
+Please do not tamper with other people's files!
 
