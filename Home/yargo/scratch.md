@@ -44,26 +44,31 @@ Bit 7 muss gesetzt sein fuer Morsedaten, geloescht fuer Steuerdaten
 
 _Def: URLs fuer Textquellen, Rezepte (RegExp, externe Skripts etc) und Prio fuer Verarbeitung_
 
+### Planer(Def:GlobalKonfig)
+
+- startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
+- startet und ueberwacht `Abfuhr`
+
 ### Bereiter(Def:Rezepte,Def:Prio,Def:URLs)
 
-- holt Rohdaten mit Sauger und wandelt sie mittels Rezepten in SauberTexte um (mit Quellenangaben u Prioritaeten) fuer Schneider
-- jeder SauberText mit PBL
+- holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit Quellenangaben u Prioritaeten) fuer `Schneider`
+- jeder `SauberText` mit PBL
 
 ### Sauger(Def:URLs)
 
-- holt Rohdaten von Net/Mail/File fuer Bereiter (mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile)
+- holt Rohdaten von Net/Mail/File fuer `Bereiter` (mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile)
 
 ### Schneider(Filestatus,SauberTexte)
 
-- erstellt SendeTexte (formatierte Texte) via Filesystem fuer Sendechef, basierend auf aktuellem Status und _Durchsatzoptimierung_
+- erstellt `SendeTexte` (formatierte Texte) via Filesystem fuer `Sendechef`, basierend auf aktuellem Status und _Durchsatzoptimierung_
 - erzeugt Filenamen aufsteigend je Kanalprefix
 - je Kanalprefix nur eine Instanz
 
 ### Sendechef(SendeTexte,XXX)
 
-- erzeugt Textstrom fuer Sender, meldet Filestatus zurueck an Schneider
+- erzeugt Textstrom fuer `Sender`, meldet Filestatus zurueck an `Schneider`
 - unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei mit _Index_ `000000` im Namen)
-- nimmt je Kanalprefix ersten SendeText, loescht ihn nach erfolgreicher Uebergabe an Sender
+- nimmt je Kanalprefix ersten `SendeText`, loescht ihn nach erfolgreicher Uebergabe an `Sender`
 - je Kanalprefix nur eine Instanz
 
 ### Sender(Textstrom)
@@ -87,6 +92,13 @@ _0 ist reserviert fuer SendeText, siehe unten_
 
 ## Dateien
 
+### GlobalKonfig
+
+#### Verzeichnisse:
+
+- kanalweise: Konfig, Status, Rezepte, `SendeText`
+- quellweise: `SauberText`
+
 ### SauberText
 
 Dateien enthalten zuerst PBL-Zeilen (alles nach zweitem SPC/TAB ist Kommentar),
@@ -103,11 +115,11 @@ eine oder mehrere Leerzeilen, anschliessend Textzeilen
 #### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
 
 - `PRI` Prioritaet (1..9)
-- `EXP` Zerfallszeit [min] fuer exponentiell abnehmende Sendewahrscheinlichkeit
-- `DUR` Dauer [min], rein informativ (fuer Sendeplanerstellung)
+- `EXP` Zerfallszeit [sec] fuer exponentiell(?) abnehmende Sendewahrscheinlichkeit
+- `DUR` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
 - `TMP` Tempo [WPM], minimal 1, maximal 255
-- `GEN` Erstellungszeit [min]
-- `SRC` Quelle (http:/file:/mail:)
+- `GEN` Erstellungszeit [sec]
+- `SRC` Quelle (http/file/mail)
 
 #### Beispiel
 
@@ -115,7 +127,7 @@ ROUTINE von info@example.com, erhalten 2010-12-30,12:34, 48 sec lang, Tempo 20 W
 
     PRI 7
     EXP 201102030405
-    DUR 0.8
+    DUR 48
     TMP 20 wpm
     GEN 201012301234
     SRC mail:info@example.com
