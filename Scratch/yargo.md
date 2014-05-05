@@ -185,3 +185,121 @@ Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
 * Ausgabeformular: Textblocknamen, verbatim-Text, Programm-Variablen (QTR, QTC, ...)
 * Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fÃ¼r Zusatzinfo
   (optional)
+
+
+---
+
+# mailwork/plan.txt
+
+Morsebroadcast - Plan
+=====================
+($Id: plan.txt,v 1.1.1.1 2004/05/23 20:14:54 yargo Exp $)
+
+1. System
+---------
+
+Eine unbediente Funkstation sammelt via Web oder PR oder andere Verfahren
+(gespeicherte Texte) Texte und Daten, bereitet sie auf und sendet sie in
+Morse aus. Sie besteht aus einer Sendestation, einem Rechner mit einem
+Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
+(Web, PR, lokale Wetterstation).
+
+1.1 Skript:
+
+* lädt regelmässig bestimmte Webseiten (URLs) und vergleicht sie mit
+den gepufferten Versionen
+* für eine bestimmte Zeitscheibe (z.B. 15min oder 30min) wird aus den
+Webseiten Text zusammengestellt, der nicht länger zum Morsen benötigt
+* jeder Seite wird eine ID und Versionsnummer ("QTC-Nummer") zugeteilt,
+die in regelmässigen Abständen in den Text eingebaut (mitgesendet) wird
+* evtl werden Stationskennungen und andere Angaben in den Text eingebaut
+* zu den vorgegebenen Zeitpunkten wird die Zeit und Stationskennung gesendet
+* wenn keine neuen Versionen vorliegen, können weniger aktuelle
+Nachrichten (Hintergrundinfos) gesendet werden
+* zu jeder bestimmten Webseite gehört ein Verarbeitungsmuster, das
+bestimmt, welche Informationen zum Morsen herausgefiltert werden, welche
+Priorität die Seite aufweist, wie lang ihr Beitrag höchstens sein darf
+und wie häufig sie gesendet werden soll (cfg-Dateien)
+* evtl werden vor dem Einfügen in den Morsestrom weitere Prüfungen
+angewendet: nur plausible Zeichen? sinnvoller Text? "verbotene Wörter"?
+* zur Bestimmung der Morsezeit und zum Morsen dienen separate Programme;
+Morsen erfolgt bevorzugt über ein System wie lpr
+
+1.2 Zusatzprogramme:
+
+* Morseprogramm (asynchron)
+* Morsezeitprogramm (Bestimmung der Zeit zum Morsen eines Textes)
+* Textladeprogramme (lynx, cat, XML-Interpreter...)
+
+2. ToDo
+-------
+
+2.1 Quellen:
+
+Copyrights? Kontaktpersonen?
+
+* SG Tagblatt: Reto
+* Slashdot
+* SWISSTXT
+* www.uska.ch
+* SMA
+* www.spaceweather.com
+* stratfor.com
+
+3. Entwurf Konfigurationsdateien
+--------------------------------
+
+3.1 allgemein:
+
+* Zeitscheibenlänge
+* Anzahl vorauszuberechnender Zeitscheiben
+
+3.2 textspezifisch:
+
+* Priorität P: 1=max, 3=min
+* Def. Quelle (URL, Datei, ...), Abrufhäufigkeit oder -zeit (crontab?)
+* Def. Programm (lynx, wvText, ...) zum Präprozessing
+* Def. Programm/Skript zum Postprozessing (Umlaute, verbotene Wörter, ...)
+  (optional)
+* Def. Textblöcke: Name; Anfangs-&Ende-Regexp als s///-Pattern, mehrzeilig =
+  eine oder mehrere Regexp, die alle erfüllt sein müssen;
+  Abbruchanweisungen, wenn Regexp misslingen: ignorieren des Blockes (warn)
+  oder ignorieren des ganzen Textes (fatal)
+  oder (wenn Ende-Regexp misslingt) Rest übernehmen
+* Minimal-&Maximallänge, wenn unter/überschritten, ganzer Text ignoriert
+  (fatal) oder abgeschnitten (warn)
+  (optional)
+* Sendefreq (0= sofort wenn neu)
+* Ausgabeformular: Textblocknamen, verbatim-Text, Programm-Variablen (QTR,
+  QTC, ...)
+* Fehlermelde-Methode: e-mail, Sendung, Log;
+  inkl Regexp/Textblock für Zusatzinfo
+  (optional)
+
+4. Programm-Erstellung
+----------------------
+
+erfolgt über Minimierung einer Kostenfunktion
+
+4.1 allgemeine Kosten:
+
+* Leerzeit in Zeitscheibe: q_j=Leerzeit/Zeitscheibenlänge
+
+4.2 Einzelkosten:
+
+* Priorität: P_j=2/(2^Prio)
+* Zerreissen eines Textes: p_j1=Stückzahl-1
+* Unterdrücken eines Textes: p_j2=(unterdrückt?1:0)
+* Kürzen eines Textes: p_j3=Kürzung/Textlänge
+* Alter relativ zu Sendefrequenz: p_j4=(freq*Alter)^2
+
+4.3 Kostenfunktion:
+
+für einzelne Zeitscheibe:
+S= sum_j(g_j*q_j) + sum_j(P_j*[1+sum_k(f_k*p_jk)])
+
+Gesamtkosten= sum_n(S_n/n)
+n="Unsicherheitsfaktor Zukunft"
+
+Ziel: Gesamtkosten minimieren
+
