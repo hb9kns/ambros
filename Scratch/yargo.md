@@ -82,15 +82,11 @@ _Def: URLs fuer Textquellen, Rezepte (RegExp, externe Skripts etc) und Prio fuer
 
 _0 ist reserviert fuer SendeText, siehe unten_
 
-1. XXX
-2. XXX2
-3. PPP
-4. PPP2
-5. TTT
-6. TTT2
-7. ROUTINE
-8. ROUTINE2
-9. FILLER
+1. XXX (EMERGENCY)
+2. PPP (URGENT)
+3. TTT (IMPORTANT)
+4. SSS (STANDARD)
+5. VVV (FILLER)
 
 ## Dateien
 
@@ -116,7 +112,7 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 
 #### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
 
-- `PRI` Prioritaet (1..9)
+- `PRI` Prioritaet (1..5)
 - `EXP` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
 - `DUR` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
 - `TMP` Tempo [WPM], minimal 1, maximal 255
@@ -125,9 +121,9 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 
 #### Beispiel
 
-ROUTINE von info@example.com, erhalten 2010-12-30,12:34, 48 sec lang, Tempo 20 WPM, gueltig (zu senden) bis 2011-2-3,04:05
+STANDARD (ROUTINE) von info@example.com, erhalten 2010-12-30,12:34, 48 sec lang, Tempo 20 WPM, gueltig (zu senden) bis 2011-2-3,04:05
 
-    PRI 7
+    PRI 4
     EXP 201102030405
     DUR 48
     TMP 20 wpm
@@ -190,7 +186,7 @@ Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
 
 #### textspezifisch:
 
-- Prioritaet P: 1=max, 3=min
+- Prioritaet P: 1=max, 5=min
 - Def. Quelle (URL, Datei, ...), Abrufhaeufigkeit oder -zeit (crontab?)
 - Def. Programm (lynx, wvText, ...) zum Praeprozessing
 - Def. Programm/Skript zum Postprozessing (Umlaute, verbotene Woerter, ...) (optional)
