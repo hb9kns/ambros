@@ -149,7 +149,13 @@ Bitmorse-Format, dh keine PBL; Tempoinformation muss jedoch enthalten sein
 
 ---
 
-# [sourceforge]
+_(mailwork/plan.txt)_
+
+## Morsebroadcast - Plan
+
+(plan.txt,2004/05/23)
+
+### System
 
 Eine unbediente Funkstation sammelt via Web oder PR oder andere Verfahren
 (gespeicherte Texte) Texte und Daten, bereitet sie auf und sendet sie in
@@ -157,149 +163,68 @@ Morse aus. Sie besteht aus einer Sendestation, einem Rechner mit einem
 Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
 (Web, PR, lokale Wetterstation).
 
-### Skript
+#### Skript:
 
-* lÃ¤dt regelmÃ¤ssig bestimmte Webseiten (URLs) und vergleicht sie mit den gepufferten Versionen
-* fÃ¼r eine bestimmte Zeitdauer (z.B. 15min oder 30min) wird aus den Webseiten Text zusammengestellt, der nicht lÃ¤nger zum Morsen benÃ¶tigt
-* jeder Seite wird eine ID und Versionsnummer ("QTC-Nummer") zugeteilt, die in regelmÃ¤ssigen AbstÃ¤nden in den Text eingebaut (mitgesendet) wird
-* evtl werden Stationskennungen und andere Angaben in den Text eingebaut
-* zu den vorgegebenen Zeitpunkten wird die Zeit und Stationskennung gesendet
-* wenn keine neuen Versionen vorliegen, kÃ¶nnen weniger aktuelle Nachrichten (Hintergrundinfos) gesendet werden
-* zu jeder bestimmten Webseite gehÃ¶rt ein Verarbeitungsmuster, das bestimmt, welche Informationen zum Morsen herausgefiltert werden, welche PrioritÃ¤t die Seite aufweist, wie lang ihr Beitrag hÃ¶chstens sein darf und wie hÃ¤ufig sie gesendet werden soll (cfg-Dateien)
-* evtl werden vor dem EinfÃ¼gen in den Morsestrom weitere PrÃ¼fungen angewendet: nur plausible Zeichen? sinnvoller Text? "verbotene WÃ¶rter"?
-* zur Bestimmung der Morsezeit und zum Morsen dienen separate Programme; Morsen erfolgt bevorzugt Ã¼ber ein System wie lpr
+- laedt regelmaessig bestimmte Webseiten (URLs) und vergleicht sie mit den gepufferten Versionen
+- fuer eine bestimmte Zeitscheibe (z.B. 15min oder 30min) wird aus den Webseiten Text zusammengestellt, der nicht laenger zum Morsen benoetigt
+- jeder Seite wird eine ID und Versionsnummer ("QTC-Nummer") zugeteilt, die in regelmaessigen Abstaenden in den Text eingebaut (mitgesendet) wird
+- evtl werden Stationskennungen und andere Angaben in den Text eingebaut
+- zu den vorgegebenen Zeitpunkten wird die Zeit und Stationskennung gesendet
+- wenn keine neuen Versionen vorliegen, koennen weniger aktuelle Nachrichten (Hintergrundinfos) gesendet werden
+- zu jeder bestimmten Webseite gehoert ein Verarbeitungsmuster, das bestimmt, welche Informationen zum Morsen herausgefiltert werden, welche Prioritaet die Seite aufweist, wie lang ihr Beitrag hoechstens sein darf und wie haeufig sie gesendet werden soll (cfg-Dateien)
+- evtl werden vor dem Einfuegen in den Morsestrom weitere Pruefungen angewendet: nur plausible Zeichen? sinnvoller Text? "verbotene Woerter"?
+- zur Bestimmung der Morsezeit und zum Morsen dienen separate Programme; Morsen erfolgt bevorzugt ueber ein System wie lpr
 
-### Konfigurationsdateien
+#### Zusatzprogramme:
 
-* Quelle (URL, Datei, ...), AbrufhÃ¤ufigkeit oder -zeit (crontab?)
-* Programm (lynx, wvText, ...) zum PrÃ¤prozessing
-* Programm/Skript zum Postprozessing (Umlaute, verbotene WÃ¶rter, ...)
-  (optional)
-* TextblÃ¶cke: Name; Anfangs-&Ende-Regexp als s///-Pattern, mehrzeilig = eine oder mehrere Regexp, die alle erfÃ¼llt sein mÃ¼ssen;
-  Abbruchanweisungen, wenn Regexp misslingen: ignorieren des Blockes (warn) oder ignorieren des ganzen Textes (fatal)
-  oder (wenn Ende-Regexp misslingt) Rest Ã¼bernehmen
-* Minimal-&MaximallÃ¤nge, wenn unter/Ã¼berschritten, ganzer Text ignoriert (fatal) oder abgeschnitten (warn)
-  (optional)
-* SendehÃ¤ufigkeit (absolut/sofort wenn neu) und PrioritÃ¤t
-  (optional)
-* Ausgabeformular: Textblocknamen, verbatim-Text, Programm-Variablen (QTR, QTC, ...)
-* Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fÃ¼r Zusatzinfo
-  (optional)
+- Morseprogramm (asynchron)
+- Morsezeitprogramm (Bestimmung der Zeit zum Morsen eines Textes)
+- Textladeprogramme (lynx, cat, XML-Interpreter...)
 
+### Entwurf Konfigurationsdateien
 
----
+#### allgemein:
 
-# mailwork/plan.txt
+- Zeitscheibenlaenge
+- Anzahl vorauszuberechnender Zeitscheiben
 
-Morsebroadcast - Plan
-=====================
-($Id: plan.txt,v 1.1.1.1 2004/05/23 20:14:54 yargo Exp $)
+#### textspezifisch:
 
-1. System
----------
+- Prioritaet P: 1=max, 3=min
+- Def. Quelle (URL, Datei, ...), Abrufhaeufigkeit oder -zeit (crontab?)
+- Def. Programm (lynx, wvText, ...) zum Praeprozessing
+- Def. Programm/Skript zum Postprozessing (Umlaute, verbotene Woerter, ...) (optional)
+- Def. Textbloecke: Name; Anfangs-&Ende-Regexp als s///-Pattern, mehrzeilig = eine oder mehrere Regexp, die alle erfuellt sein muessen; Abbruchanweisungen, wenn Regexp misslingen: ignorieren des Blockes (warn) oder ignorieren des ganzen Textes (fatal) oder (wenn Ende-Regexp misslingt) Rest uebernehmen
+- Minimal-&Maximallaenge, wenn unter/ueberschritten, ganzer Text ignoriert (fatal) oder abgeschnitten (warn) (optional)
+- Sendefreq (0= sofort wenn neu)
+- Ausgabeformular: Textblocknamen, verbatim-Text, Programm-Variablen (QTR, QTC, ...)
+- Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fuer Zusatzinfo (optional)
 
-Eine unbediente Funkstation sammelt via Web oder PR oder andere Verfahren
-(gespeicherte Texte) Texte und Daten, bereitet sie auf und sendet sie in
-Morse aus. Sie besteht aus einer Sendestation, einem Rechner mit einem
-Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
-(Web, PR, lokale Wetterstation).
+### Programm-Erstellung
 
-1.1 Skript:
+erfolgt ueber Minimierung einer Kostenfunktion
 
-* lädt regelmässig bestimmte Webseiten (URLs) und vergleicht sie mit
-den gepufferten Versionen
-* für eine bestimmte Zeitscheibe (z.B. 15min oder 30min) wird aus den
-Webseiten Text zusammengestellt, der nicht länger zum Morsen benötigt
-* jeder Seite wird eine ID und Versionsnummer ("QTC-Nummer") zugeteilt,
-die in regelmässigen Abständen in den Text eingebaut (mitgesendet) wird
-* evtl werden Stationskennungen und andere Angaben in den Text eingebaut
-* zu den vorgegebenen Zeitpunkten wird die Zeit und Stationskennung gesendet
-* wenn keine neuen Versionen vorliegen, können weniger aktuelle
-Nachrichten (Hintergrundinfos) gesendet werden
-* zu jeder bestimmten Webseite gehört ein Verarbeitungsmuster, das
-bestimmt, welche Informationen zum Morsen herausgefiltert werden, welche
-Priorität die Seite aufweist, wie lang ihr Beitrag höchstens sein darf
-und wie häufig sie gesendet werden soll (cfg-Dateien)
-* evtl werden vor dem Einfügen in den Morsestrom weitere Prüfungen
-angewendet: nur plausible Zeichen? sinnvoller Text? "verbotene Wörter"?
-* zur Bestimmung der Morsezeit und zum Morsen dienen separate Programme;
-Morsen erfolgt bevorzugt über ein System wie lpr
+#### allgemeine Kosten:
 
-1.2 Zusatzprogramme:
+- Leerzeit in Zeitscheibe: `q.n=Leerzeit/Zeitscheibenlaenge`
 
-* Morseprogramm (asynchron)
-* Morsezeitprogramm (Bestimmung der Zeit zum Morsen eines Textes)
-* Textladeprogramme (lynx, cat, XML-Interpreter...)
+#### Einzelkosten:
 
-2. ToDo
--------
+- Prioritaet: `P.j=2/(2^Prio)`
+- Zerreissen eines Textes: `p.j1=Stueckzahl-1`
+- Unterdruecken eines Textes: `p.j2=(unterdrueckt?1:0)`
+- Kuerzen eines Textes: `p.j3=Kuerzung/Textlaenge`
+- Alter relativ zu Sendefrequenz: `p.j4=(freq*Alter)^2` __??__
 
-2.1 Quellen:
+#### Kostenfunktion:
 
-Copyrights? Kontaktpersonen?
+fuer einzelne Zeitscheibe:
+`S.n= g.n*q.n + sum.j(P.j*[1+sum.k(f.k*p.jk)])`
 
-* SG Tagblatt: Reto
-* Slashdot
-* SWISSTXT
-* www.uska.ch
-* SMA
-* www.spaceweather.com
-* stratfor.com
+mit Gewichtungsfaktoren `g.n` und `f.k`
 
-3. Entwurf Konfigurationsdateien
---------------------------------
-
-3.1 allgemein:
-
-* Zeitscheibenlänge
-* Anzahl vorauszuberechnender Zeitscheiben
-
-3.2 textspezifisch:
-
-* Priorität P: 1=max, 3=min
-* Def. Quelle (URL, Datei, ...), Abrufhäufigkeit oder -zeit (crontab?)
-* Def. Programm (lynx, wvText, ...) zum Präprozessing
-* Def. Programm/Skript zum Postprozessing (Umlaute, verbotene Wörter, ...)
-  (optional)
-* Def. Textblöcke: Name; Anfangs-&Ende-Regexp als s///-Pattern, mehrzeilig =
-  eine oder mehrere Regexp, die alle erfüllt sein müssen;
-  Abbruchanweisungen, wenn Regexp misslingen: ignorieren des Blockes (warn)
-  oder ignorieren des ganzen Textes (fatal)
-  oder (wenn Ende-Regexp misslingt) Rest übernehmen
-* Minimal-&Maximallänge, wenn unter/überschritten, ganzer Text ignoriert
-  (fatal) oder abgeschnitten (warn)
-  (optional)
-* Sendefreq (0= sofort wenn neu)
-* Ausgabeformular: Textblocknamen, verbatim-Text, Programm-Variablen (QTR,
-  QTC, ...)
-* Fehlermelde-Methode: e-mail, Sendung, Log;
-  inkl Regexp/Textblock für Zusatzinfo
-  (optional)
-
-4. Programm-Erstellung
-----------------------
-
-erfolgt über Minimierung einer Kostenfunktion
-
-4.1 allgemeine Kosten:
-
-* Leerzeit in Zeitscheibe: q_j=Leerzeit/Zeitscheibenlänge
-
-4.2 Einzelkosten:
-
-* Priorität: P_j=2/(2^Prio)
-* Zerreissen eines Textes: p_j1=Stückzahl-1
-* Unterdrücken eines Textes: p_j2=(unterdrückt?1:0)
-* Kürzen eines Textes: p_j3=Kürzung/Textlänge
-* Alter relativ zu Sendefrequenz: p_j4=(freq*Alter)^2
-
-4.3 Kostenfunktion:
-
-für einzelne Zeitscheibe:
-S= sum_j(g_j*q_j) + sum_j(P_j*[1+sum_k(f_k*p_jk)])
-
-Gesamtkosten= sum_n(S_n/n)
+Total:
+`T= sum.n(S.n/n)` mit
 n="Unsicherheitsfaktor Zukunft"
 
 Ziel: Gesamtkosten minimieren
-
