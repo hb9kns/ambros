@@ -177,7 +177,7 @@ Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
 - Morsezeitprogramm (Bestimmung der Zeit zum Morsen eines Textes)
 - Textladeprogramme (lynx, cat, XML-Interpreter...)
 
-### Entwurf Konfigurationsdateien
+### Konfigurationsdateien
 
 #### allgemein:
 
@@ -192,7 +192,7 @@ Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
 - Def. Programm/Skript zum Postprozessing (Umlaute, verbotene Woerter, ...) (optional)
 - Def. Textbloecke: Name; Anfangs-&Ende-Regexp als s///-Pattern, mehrzeilig = eine oder mehrere Regexp, die alle erfuellt sein muessen; Abbruchanweisungen, wenn Regexp misslingen: ignorieren des Blockes (warn) oder ignorieren des ganzen Textes (fatal) oder (wenn Ende-Regexp misslingt) Rest uebernehmen
 - Minimal-&Maximallaenge, wenn unter/ueberschritten, ganzer Text ignoriert (fatal) oder abgeschnitten (warn) (optional)
-- Sendefreq (0= sofort wenn neu)
+- Sendeintervall (in sec, 1= sofort sobald neue Version)
 - Ausgabeformular: Textblocknamen, verbatim-Text, Programm-Variablen (QTR, QTC, ...)
 - Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fuer Zusatzinfo (optional)
 
@@ -202,15 +202,16 @@ erfolgt ueber Minimierung einer Kostenfunktion
 
 #### allgemeine Kosten:
 
-- Leerzeit in Zeitscheibe: `q.n=Leerzeit/Zeitscheibenlaenge`
+- Leerzeit in Zeitscheibe: `q.n=Zeit(Prio.1-4/Zeitscheibenlaenge)`
+- Konstanten in Kostenfunktion: `k.A, k.P, g.(), f.()`
 
 #### Einzelkosten:
 
-- Prioritaet: `P.j=2/(2^Prio)`
+- Prioritaet: `P.j=k.P^Maxprio/(k.P^Prio)` mit zB `k.P=2, Maxprio=5`
 - Zerreissen eines Textes: `p.j1=Stueckzahl-1`
 - Unterdruecken eines Textes: `p.j2=(unterdrueckt?1:0)`
-- Kuerzen eines Textes: `p.j3=Kuerzung/Textlaenge`
-- Alter relativ zu Sendefrequenz: `p.j4=(freq*Alter)^2` __??__
+- Kuerzen eines Textes: `p.j3=100*Kuerzung/Textlaenge`
+- Alter relativ zu Sendeintervall: `p.j4=(Alter/Intervall)^k.A` mit zB `k.A=2`
 
 #### Kostenfunktion:
 
@@ -223,4 +224,11 @@ Total:
 `T= sum.n(S.n/n)` mit
 n="Unsicherheitsfaktor Zukunft"
 
-Ziel: Gesamtkosten minimieren
+#### Ablauf:
+
+- Ziel: Gesamtkosten minimieren
+- Startwert: Texte nach Prio aufsteigend und Laenge absteigend angeordnet
+- Verfahren: von vorne beginnend umstellen
+- Abbruchbedingungen:
+  - neuer Text eingetroffen mit hoeherer Prio als vorhanden
+  - keine Zeit mehr vor Sendebeginn
