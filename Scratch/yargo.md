@@ -105,19 +105,24 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 #### Namen: PrefixPrioIndex[Suffix]
 
 - _Prefix_ `a..z` (Kanalselektor falls mehrere Sendekanaele)
-- _Prio_ Ziffer `1..9`
+- _Prio_ Ziffer `1..5` (`0,6..9` reserviert)
 - _Index_ Ganzzahl (`0[0*]` ist reserviert fuer XXX)
 - _Suffix_ `.txt`
-- normalerweise im 8.3-Schema: _PNMMMMMM.YYY_, dh Index mindestens bis zu 1E6-1, zB `a7000123.txt`
+- normalerweise im 8.3-Schema: _PNMMMMMM.YYY_, dh Index mindestens bis zu 1E6-1, zB `a4000123.txt`
 
 #### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
 
+- `CNL` Kanalselektor (a..z)
 - `PRI` Prioritaet (1..5)
+- `IDX` Index (Ganzzahl)
 - `EXP` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
 - `DUR` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
 - `TMP` Tempo [WPM], minimal 1, maximal 255
 - `GEN` Erstellungszeit [sec]
-- `SRC` Quelle (http/file/mail)
+- `SRC` Quelle (URL)
+
+`CNL,PRI,IDX` sind identisch zu entsprechenden Teilen des Dateinamens und deshalb optional;
+bei Widerspruechen haben sie jedoch Vorrang
 
 #### Beispiel
 
