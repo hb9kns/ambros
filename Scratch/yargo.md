@@ -45,6 +45,17 @@ Bit 7 muss gesetzt sein fuer Morsedaten, geloescht fuer Steuerdaten
 
 _Def: URLs fuer Textquellen, Rezepte (RegExp, externe Skripts etc) und Prio fuer Verarbeitung_
 
+### Zeitmesser(WpM, Laenge/sec; stdin/stdout)
+
+- Eingabetext auf stdin
+- wenn `Laenge>0`: stdout erhaelt auf Laenge[sec] (gemaess WpM) abgemessenen Text (stdin abgeschnitten)
+- sonst erhaelt stdout Laenge[sec] (gemaess WpM) des Textes von stdin
+- Zeichenlaenge einmalig aus Textdatei ermittelt:
+
+    a .-
+    b -...
+    ...
+
 ### Planer(Def:GlobalKonfig)
 
 - startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
