@@ -1,0 +1,12 @@
+#!/bin/sh
+# sniptime:
+# cut input text to given duration, or calculate total duration
+#
+# args: speed/WpM, [duration/sec]
+# stdin: standardized text
+# stdout: duration/sec | cut text
+if test X$1 = X
+then echo "$0 : missing speed/WpM" >&2
+ exit 2
+fi
+
