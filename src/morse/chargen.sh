@@ -9,13 +9,15 @@ calclen() {
  do
   # convert dits into "2 +" and dahs into "4 +" and append "2", because
   # inter-character pause at end is 2 dits longer than inter-unit pause
-  f1=`echo "$form 2"|sed -e 's/\./2 + /g;s/\-/4 + /g'`
+  # _ will be used as inter-word pause
+  f1=`echo "$form 2"|sed -e 's/\./2 + /g;s/\-/4 + /g;s/_/2 + /g'`
   # do the addition with expr
-  echo "$char	" `expr $f1` "	$form"
+  echo "_$char	" `expr $f1` "	$form"
  done
 }
 # third column in following table is comment and will be ignored by calclen
 cat <<EOT | calclen >$chartab
+_ _ inter-word pause
 A .-
 B -...
 C -.-.
