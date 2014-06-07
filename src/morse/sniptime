@@ -18,7 +18,7 @@ wordduration() {
 local wd cd
 wd=0
 # loop through characters
-while test "$1" != ""
+while test ! -z $1
 do
 # search character in chartab, remove first and third column
  cd=`grep -F "_$1" $chartab`
@@ -35,7 +35,7 @@ done
 echo $wd
 }
 
-if test X$1 = X
+if test -z $1
 then echo "$0 : missing speed/WpM" >&2
  exit 2
 fi
