@@ -17,6 +17,8 @@
 
 ## Bitmorse (binaer, byteorientiert)
 
+_eventuell unnoetig: direkt normale ASCII-Text waehrend Senden konvertieren_
+
 Bit 7 muss gesetzt sein fuer Morsedaten, geloescht fuer Steuerdaten
 
 ### Morsedaten
@@ -150,14 +152,14 @@ STANDARD (ROUTINE) von info@example.com, erhalten 2010-12-30,12:34, 48 sec lang,
 
 ### SendeText
 
-Bitmorse-Format, dh keine PBL; Tempoinformation muss jedoch enthalten sein
+Format wie SauberText, TMP-Header zwingend vorhanden, restliche PBL optional
 
 #### Namen: PrefixPrioIndex[Suffix]
 
 - _Prefix_ `a..z` (Kanalselektor falls mehrere Sendekanaele)
 - _Prio_ `0` __fix__ zur Abgrenzung gegen SauberTexte
 - _Index_ Ganzzahl (`[0*]0` ist reserviert fuer XXX)
-- _Suffix_ `.a1a` fuer Bitmorse-Format oder `.dat`
+- _Suffix_ `.txt` oder `.dat`
 
 ---
 
@@ -248,3 +250,4 @@ n="Unsicherheitsfaktor Zukunft"
 - Abbruchbedingungen:
   - neuer Text eingetroffen mit hoeherer Prio als vorhanden
   - keine Zeit mehr vor Sendebeginn
+
