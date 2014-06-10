@@ -125,7 +125,6 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 
 #### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
 
-- `CNL` Kanalselektor (a..z)
 - `PRI` Prioritaet (1..5)
 - `IDX` Index (Ganzzahl)
 - `EXP` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
@@ -134,7 +133,7 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 - `GEN` Erstellungszeit [sec]
 - `SRC` Quelle (URL)
 
-`CNL,PRI,IDX` sind identisch zu entsprechenden Teilen des Dateinamens und deshalb optional;
+`PRI,IDX` sind identisch zu entsprechenden Teilen des Dateinamens und deshalb optional;
 bei Widerspruechen haben sie jedoch Vorrang
 
 #### Beispiel
@@ -152,7 +151,7 @@ STANDARD (ROUTINE) von info@example.com, erhalten 2010-12-30,12:34, 48 sec lang,
 
 ### SendeText
 
-Format wie SauberText, TMP-Header zwingend vorhanden, restliche PBL optional
+Format wie SauberText, allenfalls whitespace umformatiert
 
 #### Namen: PrefixPrioIndex[Suffix]
 
@@ -160,6 +159,18 @@ Format wie SauberText, TMP-Header zwingend vorhanden, restliche PBL optional
 - _Prio_ `0` __fix__ zur Abgrenzung gegen SauberTexte
 - _Index_ Ganzzahl (`[0*]0` ist reserviert fuer XXX)
 - _Suffix_ `.txt` oder `.dat`
+
+#### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
+
+_alle optional ausser_ `TMP`
+
+- `PRI` Prioritaet (1..5)
+- `IDX` Index (Ganzzahl)
+- `EXP` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
+- `DUR` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
+- `TMP` Tempo [WPM], minimal 1, maximal 255
+- `GEN` Erstellungszeit [sec]
+- `SRC` Quelle (URL)
 
 ---
 
@@ -199,20 +210,34 @@ Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
 
 #### allgemein:
 
-- Zeitscheibenlaenge
+- SLL: Zeitscheibenlaenge
 - Anzahl vorauszuberechnender Zeitscheiben
 
 #### textspezifisch:
 
-- Prioritaet P: 1=max, 5=min
-- Def. Quelle (URL, Datei, ...), Abrufhaeufigkeit oder -zeit (crontab?)
-- Def. Programm (lynx, wvText, ...) zum Praeprozessing
-- Def. Programm/Skript zum Postprozessing (Umlaute, verbotene Woerter, ...) (optional)
-- Def. Textbloecke: Name; Anfangs-&Ende-Regexp als s///-Pattern, mehrzeilig = eine oder mehrere Regexp, die alle erfuellt sein muessen; Abbruchanweisungen, wenn Regexp misslingen: ignorieren des Blockes (warn) oder ignorieren des ganzen Textes (fatal) oder (wenn Ende-Regexp misslingt) Rest uebernehmen
-- Minimal-&Maximallaenge, wenn unter/ueberschritten, ganzer Text ignoriert (fatal) oder abgeschnitten (warn) (optional)
-- Sendeintervall (in sec, 1= sofort sobald neue Version)
-- Ausgabeformular: Textblocknamen, verbatim-Text, Programm-Variablen (QTR, QTC, ...)
-- Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fuer Zusatzinfo (optional)
+##### config
+
+- PRIORITY: Prioritaet P: 1=max, 5=min
+- SOURCE: Quelle (URL, Datei, ...); bei mehreren Quellen erste erfolgreich
+  abgerufene, Quellangabe (ID) wird dann mit Indexnummer (1,2,...) versehen
+- POLLTIME: Abrufhaeufigkeit oder -zeit (crontab?)
+- PREPROCESSOR: Def. Programm (lynx, wvText, ...) zum Praeprozessing
+- POSTPROCESSOR: Def. Programm/Skript zum Postprozessing (Umlaute, verbotene Woerter, ...) (optional)
+- MINLENGTH, MAXLENGTH, MINHANDLE, MAXHANDLE: Minimal-&Maximallaenge, wenn unter/ueberschritten, ganzer Text ignoriert (fatal) oder abgeschnitten (warn) (optional)
+- TXINTERVAL: Sendeintervall (in sec, 1= sofort sobald neue Version)
+- ERRORREPORT: Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fuer Zusatzinfo (optional)
+
+##### recipe
+
+- Name
+- Anfangs-&Ende-Regexp als s///-Pattern, mehrzeilig = eine oder mehrere Regexp, die alle erfuellt sein muessen
+- Abbruchanweisungen, wenn Regexp misslingen: ignorieren des Blockes (warn) oder ignorieren des ganzen Textes (fatal) oder (wenn Ende-Regexp misslingt) Rest uebernehmen
+
+##### outputform
+
+- Textblocknamen
+- verbatim-Text
+- Programm-Variablen (QTR, QTC, ...)
 
 ### Programm-Erstellung
 
