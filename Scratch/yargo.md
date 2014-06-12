@@ -125,27 +125,27 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 
 #### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
 
-- `PRI` Prioritaet (1..5)
-- `IDX` Index (Ganzzahl)
-- `EXP` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
-- `DUR` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
-- `TMP` Tempo [WPM], minimal 1, maximal 255
-- `GEN` Erstellungszeit [sec]
-- `SRC` Quelle (URL)
+- `PRIORITY` Prioritaet (1..5)
+- `INDEX` Index (Ganzzahl)
+- `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
+- `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
+- `WPM` Tempo [WPM], minimal 1, maximal 255
+- `GENESIS` Erstellungszeit [sec]
+- `SOURCE` Quelle (URL)
 
-`PRI,IDX` sind identisch zu entsprechenden Teilen des Dateinamens und deshalb optional;
+`PRIORITY,INDEX` sind identisch zu entsprechenden Teilen des Dateinamens und deshalb optional;
 bei Widerspruechen haben sie jedoch Vorrang
 
 #### Beispiel
 
 STANDARD (ROUTINE) von info@example.com, erhalten 2010-12-30,12:34, 48 sec lang, Tempo 20 WPM, gueltig (zu senden) bis 2011-2-3,04:05
 
-    PRI 4
-    EXP 201102030405
-    DUR 48
-    TMP 20 wpm
-    GEN 201012301234
-    SRC mail:info@example.com
+    PRIORITY 4
+    DECAY 201102030405
+    DURATION 48
+    WPM 20 wpm
+    GENESIS 201012301234
+    SOURCE mail:info@example.com
     
     == mail: info at example.com = this is a first test for mail input = 73 de example.com +
 
@@ -162,15 +162,15 @@ Format wie SauberText, allenfalls whitespace umformatiert
 
 #### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
 
-_alle optional ausser_ `TMP`
+_alle optional ausser_ `WPM`
 
-- `PRI` Prioritaet (1..5)
-- `IDX` Index (Ganzzahl)
-- `EXP` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
-- `DUR` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
-- `TMP` Tempo [WPM], minimal 1, maximal 255
-- `GEN` Erstellungszeit [sec]
-- `SRC` Quelle (URL)
+- `PRIORITY` Prioritaet (1..5)
+- `INDEX` Index (Ganzzahl)
+- `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
+- `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
+- `WPM` Tempo [WPM], minimal 1, maximal 255
+- `GENESIS` Erstellungszeit [sec, Ursprung fix je Installation/Plattform]
+- `SOURCE` Quelle (URL)
 
 ---
 
@@ -210,7 +210,7 @@ Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
 
 #### allgemein:
 
-- SLL: Zeitscheibenlaenge
+- SLICETIME: Zeitscheibenlaenge
 - Anzahl vorauszuberechnender Zeitscheiben
 
 #### textspezifisch:
@@ -275,4 +275,3 @@ n="Unsicherheitsfaktor Zukunft"
 - Abbruchbedingungen:
   - neuer Text eingetroffen mit hoeherer Prio als vorhanden
   - keine Zeit mehr vor Sendebeginn
-

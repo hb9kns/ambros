@@ -1,0 +1,31 @@
+#!/bin/sh
+# fetcher:
+# get text contents from sources, return creation/modification time
+# and source description together with text through stdout
+
+prot=${1%%://*}
+src="${1#*://}"
+gen=-1
+tmpf=${TMP:-/tmp}/fetcher-$prot-$$.tmp
+echo ::$tmpf::
+
+case $prot in
+file)
+ gen=`ls -l --time-style=+%s "$src" | { read _ _ _ _ _ t _ ; echo $t ; }`
+ cat "$src" >$tmpf
+ ;;
+http|https) echo $1 ;;
+gopher) echo $1 ;;
+ftp) echo $1 ;;
+rss) echo $1 ;;
+*) gen=-1 ;;
+esac
+
+if test $gen -gt 0
+then
+ echo GENESIS $gen
+ echo SOURCE $prot://$src
+ echo
+ cat $tmpf
+fi
+rm -f $tmpf
