@@ -95,11 +95,11 @@ _Def: URLs fuer Textquellen, Rezepte (RegExp, externe Skripts etc) und Prio fuer
 
 _0 ist reserviert fuer SendeText, siehe unten_
 
-1. XXX (EMERGENCY)
-2. PPP (URGENT)
-3. TTT (IMPORTANT)
-4. SSS (STANDARD)
-5. VVV (FILLER)
+10..19: XXX (EMERGENCY)
+20..29: PPP (URGENT)
+30..39: TTT (IMPORTANT)
+40..49: SSS (STANDARD)
+50..59: VVV (FILLER)
 
 ## Dateien
 
@@ -118,14 +118,14 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 #### Namen: PrefixPrioIndex[Suffix]
 
 - _Prefix_ `a..z` (Kanalselektor falls mehrere Sendekanaele)
-- _Prio_ Ziffer `1..5` (`0,6..9` reserviert)
+- _Prio_ Zahl `10..99` (`0..9` reserviert)
 - _Index_ Ganzzahl (`0[0*]` ist reserviert fuer XXX)
 - _Suffix_ `.txt`
-- normalerweise im 8.3-Schema: _PNMMMMMM.YYY_, dh Index mindestens bis zu 1E6-1, zB `a4000123.txt`
+- normalerweise im 8.3-Schema: _PNNMMMMM.YYY_, dh Index mindestens bis zu 1E5-1, zB `a4000123.txt`
 
 #### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
 
-- `PRIORITY` Prioritaet (1..5)
+- `PRIORITY` Prioritaet (10..99, normalerweise nur 10..59)
 - `INDEX` Index (Ganzzahl)
 - `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
 - `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
@@ -156,7 +156,7 @@ Format wie SauberText, allenfalls whitespace umformatiert
 #### Namen: PrefixPrioIndex[Suffix]
 
 - _Prefix_ `a..z` (Kanalselektor falls mehrere Sendekanaele)
-- _Prio_ `0` __fix__ zur Abgrenzung gegen SauberTexte
+- _Prio_ `00` __fix__ zur Abgrenzung gegen SauberTexte
 - _Index_ Ganzzahl (`[0*]0` ist reserviert fuer XXX)
 - _Suffix_ `.txt` oder `.dat`
 
@@ -164,7 +164,7 @@ Format wie SauberText, allenfalls whitespace umformatiert
 
 _alle optional ausser_ `WPM`
 
-- `PRIORITY` Prioritaet (1..5)
+- `PRIORITY` Prioritaet (10..99, normalerweise nur 10..59)
 - `INDEX` Index (Ganzzahl)
 - `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
 - `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
@@ -217,7 +217,7 @@ Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
 
 ##### config
 
-- PRIORITY: Prioritaet P: 1=max, 5=min
+- PRIORITY: Prioritaet P: 10=max, 99=min
 - SOURCE: Quelle (URL, Datei, ...); bei mehreren Quellen erste erfolgreich
   abgerufene, Quellangabe (ID) wird dann mit Indexnummer (1,2,...) versehen
 - POLLTIME: Abrufhaeufigkeit oder -zeit (crontab?)
@@ -245,12 +245,12 @@ erfolgt ueber Minimierung einer Kostenfunktion
 
 #### allgemeine Kosten:
 
-- Leerzeit in Zeitscheibe: `q.n=Zeit(Prio.1-4/Zeitscheibenlaenge)`
+- Leerzeit in Zeitscheibe: `q.n=Zeit([Prio.10-49]/Zeitscheibenlaenge)`
 - Konstanten in Kostenfunktion: `k.A, k.P, g.(), f.()`
 
 #### Einzelkosten:
 
-- Prioritaet: `P.j=k.P^Maxprio/(k.P^Prio)` mit zB `k.P=2, Maxprio=5`
+- Prioritaet: `P.j=Prio^k.P` mit zB `k.P=2`
 - Zerreissen eines Textes: `p.j1=Stueckzahl-1`
 - Unterdruecken eines Textes: `p.j2=(unterdrueckt?1:0)`
 - Kuerzen eines Textes: `p.j3=100*Kuerzung/Textlaenge`

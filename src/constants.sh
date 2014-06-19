@@ -1,0 +1,9 @@
+#!/bin/sh
+# string and other constants for shell scripts
+PBLPRI=PRIORITY
+PBLIDX=INDEX
+PBLDCY=DECAY
+PBLDUR=DURATION
+PBLWPM=WPM
+PBLGEN=GENESIS
+PBLSRC=SOURCE

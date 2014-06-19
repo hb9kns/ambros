@@ -3,13 +3,15 @@
 # get text contents from sources, return creation/modification time
 # and source description together with text through stdout
 
-prot=${1%%://*}
+. `dirname $0`/constants.sh
+
+proto=${1%%://*}
 src="${1#*://}"
 gen=-1
-tmpf=${TMP:-/tmp}/fetcher-$prot-$$.tmp
-echo ::$tmpf::
+tmpf=${TMP:-/tmp}/fetcher-$proto-$$.tmp
+#echo ::$tmpf::
 
-case $prot in
+case $proto in
 file)
  gen=`ls -l --time-style=+%s "$src" | { read _ _ _ _ _ t _ ; echo $t ; }`
  cat "$src" >$tmpf
@@ -23,8 +25,8 @@ esac
 
 if test $gen -gt 0
 then
- echo GENESIS $gen
- echo SOURCE $prot://$src
+ echo $PBLSRC $proto://$src
+ echo $PBLGEN $gen
  echo
  cat $tmpf
 fi
