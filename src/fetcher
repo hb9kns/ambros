@@ -18,7 +18,7 @@ file)
  statstat=`stat --help 2>&1|head -n 1`
  case $statstat in
  Usage*) gen=`stat -c %Y "$src"` ;;
- "stat: unknown option*") gen=`date +%s` ;;
+ "stat: unknown option"*) gen=`stat -f %a "$src"` ;;
  *) gen=`date +%s` ;;
  esac
  cat "$src" >$tmpf
