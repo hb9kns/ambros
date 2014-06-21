@@ -1,11 +1,229 @@
 # yargo scratch file
 
+## Konfiguration
+
+Jeder Kanal hat ein eigenes Verzeichnis mit Konfigurationsdateien und
+aktuellem Status sowie den SendeTexten.
+
+Jede Quelle hat ein eigenes Verzeichnis mit abgelegten SauberTexten,
+benannt nach ihrer Kurzbezeichnung `IDENTIFICATION`.
+
+### Kanal
+
+- SLICETIME: Zeitscheibenlaenge
+- SLICEDEPTH: Anzahl vorauszuberechnender Zeitscheiben
+- POSTPROCESSOR: Skript zum Postprozessing: Umlaute, verbotene Woerter, ...
+- WPM: Tastgeschwindigkeit (kann durch Rezept oder Prio veraendert werden)
+
+### Quelle
+
+- IDENTIFICATION: eindeutiges "Wort" (nur Buchstaben), so kurz wie moeglich
+- PRIORITY: Prioritaet P: 10=max, 99=min (kann durch Rezept veraendert werden)
+- SOURCE: Quelle (URL, Datei, ...); bei mehreren Quellen erste erfolgreich
+  abgerufene, IDENTIFICATION wird dann mit Sub-ID (1,2,...) versehen
+- POLLING: Abrufintervall oder -zeit (crontab?)
+- RECIPE: Skript zur Verarbeitung
+- INTERVAL: Sendeintervall (in sec, 0= sofort sobald neue Version)
+- ERRORREPORT: Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fuer Zusatzinfo (optional)
+
+## Komponenten
+
+### Zeitmesser(WpM, Laenge/sec; stdin/stdout)
+
+_ok, shellscript_
+
+- Eingabetext auf stdin
+- wenn `Laenge>0`: stdout erhaelt auf Laenge[sec] (gemaess WpM) abgemessenen Text (stdin abgeschnitten)
+- sonst erhaelt stdout Laenge[sec] (gemaess WpM) des Textes von stdin
+- Zeichenlaenge einmalig aus Textdatei ermittelt:
+
+    a .-
+    b -...
+    ...
+
+### Planer(Def:GlobalKonfig)
+
+- startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
+- startet und ueberwacht `Abfuhr`
+
+### Bereiter(Def:Rezepte,Def:Prio,Def:URLs)
+
+- gestartet von `Schneider`
+- holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit PBL fuer Quellenangaben u Prioritaeten)
+
+### Sauger(Def:URLs)
+
+_ok, shellscript_
+
+- gestartet von `Bereiter`
+- holt Rohdaten von Net/Mail/File mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile
+
+### Schneider(Filestatus,SauberTexte)
+
+- erstellt `SendeTexte` (formatierte Texte) via Filesystem fuer `Sendechef`, basierend auf aktuellem Status und _Durchsatzoptimierung_
+- erzeugt Filenamen aufsteigend je Kanalprefix
+- je Kanalprefix nur eine Instanz
+
+### Sendechef(SendeTexte,XXX)
+
+- erzeugt Textstrom fuer `Sender`, meldet Filestatus zurueck an `Schneider`
+- unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei mit _Index_ `000000` im Namen)
+- nimmt je Kanalprefix ersten `SendeText`, loescht ihn nach erfolgreicher Uebergabe an `Sender`
+- je Kanalprefix nur eine Instanz
+
+### Sender(Textstrom)
+
+- erzeugt A1A-Signal aus Textstrom-Zeichen
+- je Kanalprefix nur eine Instanz
+
+## Prioritaeten
+
+_0 ist reserviert fuer SendeText, siehe unten_
+
+10..19: XXX (EMERGENCY)
+20..29: PPP (URGENT)
+30..39: TTT (IMPORTANT)
+40..49: SSS (STANDARD)
+50..59: VVV (FILLER)
+
+## Dateiformate
+
+### SauberText
+
+Dateien enthalten zuerst PBL-Zeilen, eine oder mehrere Leerzeilen, anschliessend Textzeilen.
+PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Kommentar).
+
+#### Name: PrefixPrioIndex[Suffix]
+
+- _Prefix_ `_a..z` (Kanalselektor falls mehrere Sendekanaele, `_` fuer alle)
+- _Prio_ Zahl `10..99` (`0..9` reserviert)
+- _Index_ Ganzzahl (`0[0*]` ist reserviert fuer XXX)
+- _Suffix_ `.txt`
+- normalerweise im 8.3-Schema PNNMMMMM.YYY, dh Index mindestens bis zu 1E5-1;
+  zB `a4000123.txt` (Kanal a, Prio 40, Nr.123)
+  oder `_123.txt` (alle Kanaele, Prio 12, Nr.3)
+
+#### PBL-Zeilen (Bezeichner grossgeschrieben)
+
+- `PRIORITY` Prioritaet (10..99, normalerweise nur 10..59)
+- `INDEX` Index (Ganzzahl)
+- `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
+- `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
+- `WPM` Tempo [WPM], minimal 1, maximal 255
+- `GENESIS` Erstellungszeit [sec]
+- `SOURCE` Quelle (URL)
+- `IDENTIFICATION` Kurzbezeichnung (Wort, optional da durch Quelle gegeben)
+
+`PRIORITY,INDEX` sind identisch zu entsprechenden Teilen des Dateinamens
+und deshalb optional; bei Widerspruechen haben sie jedoch Vorrang.
+
+#### Beispiel
+
+STANDARD (ROUTINE) von info@example.com, erhalten 2010-12-30,12:34, 48 sec lang, Tempo 20 WPM, gueltig (zu senden) bis 2011-2-3,04:05
+
+    PRIORITY 4
+    DECAY 201102030405
+    DURATION 48
+    WPM 20 wpm
+    GENESIS 201012301234
+    SOURCE mail:info@example.com
+    
+    == mail: info at example.com = this is a first test for mail input = 73 de example.com +
+
+### SendeText
+
+Format wie SauberText, allenfalls whitespace umformatiert
+
+#### Namen: PrefixPrioIndex[Suffix]
+
+- _Prefix_ `_a..z` (Kanalselektor falls mehrere Sendekanaele, `_` fuer alle)
+- _Prio_ `00` __fix__ zur Abgrenzung gegen SauberTexte
+- _Index_ Ganzzahl (`[0*]0` ist reserviert fuer XXX)
+- _Suffix_ `.txt` oder `.dat`
+
+#### PBL-Zeilen (Bezeichner grossgeschrieben)
+
+_alle optional ausser_ `WPM`
+
+- `PRIORITY` Prioritaet (10..99, normalerweise nur 10..59)
+- `INDEX` Index (Ganzzahl)
+- `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
+- `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
+- `WPM` Tempo [WPM], minimal 1, maximal 255
+- `GENESIS` Erstellungszeit [sec, Ursprung fix je Installation/Plattform]
+- `SOURCE` Quelle (URL)
+
+---
+
+## Morsebroadcast - Plan
+
+(basierend auf plan.txt, 2004/05/23)
+
+Eine unbediente Funkstation sammelt via Web oder PR oder andere Verfahren
+(gespeicherte Texte) Texte und Daten, bereitet sie auf und sendet sie in
+Morse aus. Sie besteht aus einer Sendestation, einem Rechner mit einem
+Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
+(Web, PR, lokale Wetterstation).
+
+### Skript:
+
+- laedt regelmaessig bestimmte Webseiten (URLs) und vergleicht sie mit den gepufferten Versionen
+- fuer eine bestimmte Zeitscheibe (z.B. 15min oder 30min) wird aus den Webseiten Text zusammengestellt, der nicht laenger zum Morsen benoetigt
+- jeder Seite wird eine ID und Versionsnummer ("QTC-Nummer") zugeteilt, die in regelmaessigen Abstaenden in den Text eingebaut (mitgesendet) wird
+- evtl werden Stationskennungen und andere Angaben in den Text eingebaut
+- zu den vorgegebenen Zeitpunkten wird die Zeit und Stationskennung gesendet
+- wenn keine neuen Versionen vorliegen, koennen weniger aktuelle Nachrichten (Hintergrundinfos) gesendet werden
+- zu jeder bestimmten Webseite gehoert ein Verarbeitungsmuster, das bestimmt, welche Informationen zum Morsen herausgefiltert werden, welche Prioritaet die Seite aufweist, wie lang ihr Beitrag hoechstens sein darf und wie haeufig sie gesendet werden soll (cfg-Dateien)
+- evtl werden vor dem Einfuegen in den Morsestrom weitere Pruefungen angewendet: nur plausible Zeichen? sinnvoller Text? "verbotene Woerter"?
+- zur Bestimmung der Morsezeit und zum Morsen dienen separate Programme; Morsen erfolgt bevorzugt ueber ein System wie lpr
+
+### Programm-Erstellung ueber Minimierung einer Kostenfunktion
+
+#### allgemeine Kosten:
+
+- Leerzeit in Zeitscheibe: `q.n=Zeit([Prio.10-49]/Zeitscheibenlaenge)`
+- Konstanten in Kostenfunktion: `k.A, k.P, g.(), f.()`
+
+#### Einzelkosten:
+
+- Prioritaet: `P.j=Prio^k.P` mit zB `k.P=2`
+- Zerreissen eines Textes: `p.j1=Stueckzahl-1`
+- Unterdruecken eines Textes: `p.j2=(unterdrueckt?1:0)`
+- Kuerzen eines Textes: `p.j3=100*Kuerzung/Textlaenge`
+- Alter relativ zu Sendeintervall: `p.j4=(Alter/Intervall)^k.A` mit zB `k.A=2`
+
+#### Kostenfunktion:
+
+fuer einzelne Zeitscheibe:
+`S.n= g.n*q.n + sum.j(P.j*[1+sum.k(f.k*p.jk)])`
+
+mit Gewichtungsfaktoren `g.n` und `f.k`
+
+Total:
+`T= sum.n(S.n/n)` mit
+n="Unsicherheitsfaktor Zukunft"
+
+#### Ablauf:
+
+- Ziel: Gesamtkosten minimieren
+- Startwert: Texte nach Prio aufsteigend und Laenge absteigend angeordnet
+- Verfahren: von vorne beginnend umstellen
+- Abbruchbedingungen:
+  - neuer Text eingetroffen mit hoeherer Prio als vorhanden
+  - keine Zeit mehr vor Sendebeginn
+
+---
+
+---
+
+# Archiv / Abfall
+
 ## Ideen
 
 ### make
 
-- Quelltext into SauberText
-- SauberText into SendeText (Bitmorse)
+- vom Quelltext zum SauberText
+- vom SauberText zum SendeText
 
 ### MIDI
 
@@ -43,235 +261,3 @@ Bit 7 muss gesetzt sein fuer Morsedaten, geloescht fuer Steuerdaten
 
 ---
 
-## Systemkomponenten (Programme)
-
-_Def: URLs fuer Textquellen, Rezepte (RegExp, externe Skripts etc) und Prio fuer Verarbeitung_
-
-### Zeitmesser(WpM, Laenge/sec; stdin/stdout)
-
-- Eingabetext auf stdin
-- wenn `Laenge>0`: stdout erhaelt auf Laenge[sec] (gemaess WpM) abgemessenen Text (stdin abgeschnitten)
-- sonst erhaelt stdout Laenge[sec] (gemaess WpM) des Textes von stdin
-- Zeichenlaenge einmalig aus Textdatei ermittelt:
-
-    a .-
-    b -...
-    ...
-
-### Planer(Def:GlobalKonfig)
-
-- startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
-- startet und ueberwacht `Abfuhr`
-
-### Bereiter(Def:Rezepte,Def:Prio,Def:URLs)
-
-- gestartet von `Schneider`
-- holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit PBL fuer Quellenangaben u Prioritaeten)
-
-### Sauger(Def:URLs)
-
-- gestartet von `Bereiter`
-- holt Rohdaten von Net/Mail/File mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile
-
-### Schneider(Filestatus,SauberTexte)
-
-- erstellt `SendeTexte` (formatierte Texte) via Filesystem fuer `Sendechef`, basierend auf aktuellem Status und _Durchsatzoptimierung_
-- erzeugt Filenamen aufsteigend je Kanalprefix
-- je Kanalprefix nur eine Instanz
-
-### Sendechef(SendeTexte,XXX)
-
-- erzeugt Textstrom fuer `Sender`, meldet Filestatus zurueck an `Schneider`
-- unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei mit _Index_ `000000` im Namen)
-- nimmt je Kanalprefix ersten `SendeText`, loescht ihn nach erfolgreicher Uebergabe an `Sender`
-- je Kanalprefix nur eine Instanz
-
-### Sender(Textstrom)
-
-- erzeugt A1A-Signal aus Textstrom-Zeichen
-- je Kanalprefix nur eine Instanz
-
-## Prioritaeten
-
-_0 ist reserviert fuer SendeText, siehe unten_
-
-10..19: XXX (EMERGENCY)
-20..29: PPP (URGENT)
-30..39: TTT (IMPORTANT)
-40..49: SSS (STANDARD)
-50..59: VVV (FILLER)
-
-## Dateien
-
-### GlobalKonfig
-
-#### Verzeichnisse:
-
-- kanalweise: Konfig, Status, Rezepte, `SendeText`
-- quellweise: `SauberText`
-
-### SauberText
-
-Dateien enthalten zuerst PBL-Zeilen, eine oder mehrere Leerzeilen, anschliessend Textzeilen.
-PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Kommentar).
-
-#### Namen: PrefixPrioIndex[Suffix]
-
-- _Prefix_ `a..z` (Kanalselektor falls mehrere Sendekanaele)
-- _Prio_ Zahl `10..99` (`0..9` reserviert)
-- _Index_ Ganzzahl (`0[0*]` ist reserviert fuer XXX)
-- _Suffix_ `.txt`
-- normalerweise im 8.3-Schema: _PNNMMMMM.YYY_, dh Index mindestens bis zu 1E5-1, zB `a4000123.txt`
-
-#### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
-
-- `PRIORITY` Prioritaet (10..99, normalerweise nur 10..59)
-- `INDEX` Index (Ganzzahl)
-- `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
-- `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
-- `WPM` Tempo [WPM], minimal 1, maximal 255
-- `GENESIS` Erstellungszeit [sec]
-- `SOURCE` Quelle (URL)
-
-`PRIORITY,INDEX` sind identisch zu entsprechenden Teilen des Dateinamens und deshalb optional;
-bei Widerspruechen haben sie jedoch Vorrang
-
-#### Beispiel
-
-STANDARD (ROUTINE) von info@example.com, erhalten 2010-12-30,12:34, 48 sec lang, Tempo 20 WPM, gueltig (zu senden) bis 2011-2-3,04:05
-
-    PRIORITY 4
-    DECAY 201102030405
-    DURATION 48
-    WPM 20 wpm
-    GENESIS 201012301234
-    SOURCE mail:info@example.com
-    
-    == mail: info at example.com = this is a first test for mail input = 73 de example.com +
-
-### SendeText
-
-Format wie SauberText, allenfalls whitespace umformatiert
-
-#### Namen: PrefixPrioIndex[Suffix]
-
-- _Prefix_ `a..z` (Kanalselektor falls mehrere Sendekanaele)
-- _Prio_ `00` __fix__ zur Abgrenzung gegen SauberTexte
-- _Index_ Ganzzahl (`[0*]0` ist reserviert fuer XXX)
-- _Suffix_ `.txt` oder `.dat`
-
-#### PBL-Zeilen (Bezeichner gross- oder kleingeschrieben)
-
-_alle optional ausser_ `WPM`
-
-- `PRIORITY` Prioritaet (10..99, normalerweise nur 10..59)
-- `INDEX` Index (Ganzzahl)
-- `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
-- `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
-- `WPM` Tempo [WPM], minimal 1, maximal 255
-- `GENESIS` Erstellungszeit [sec, Ursprung fix je Installation/Plattform]
-- `SOURCE` Quelle (URL)
-
----
-
-_(mailwork/plan.txt)_
-
-## Morsebroadcast - Plan
-
-(plan.txt,2004/05/23)
-
-### System
-
-Eine unbediente Funkstation sammelt via Web oder PR oder andere Verfahren
-(gespeicherte Texte) Texte und Daten, bereitet sie auf und sendet sie in
-Morse aus. Sie besteht aus einer Sendestation, einem Rechner mit einem
-Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
-(Web, PR, lokale Wetterstation).
-
-#### Skript:
-
-- laedt regelmaessig bestimmte Webseiten (URLs) und vergleicht sie mit den gepufferten Versionen
-- fuer eine bestimmte Zeitscheibe (z.B. 15min oder 30min) wird aus den Webseiten Text zusammengestellt, der nicht laenger zum Morsen benoetigt
-- jeder Seite wird eine ID und Versionsnummer ("QTC-Nummer") zugeteilt, die in regelmaessigen Abstaenden in den Text eingebaut (mitgesendet) wird
-- evtl werden Stationskennungen und andere Angaben in den Text eingebaut
-- zu den vorgegebenen Zeitpunkten wird die Zeit und Stationskennung gesendet
-- wenn keine neuen Versionen vorliegen, koennen weniger aktuelle Nachrichten (Hintergrundinfos) gesendet werden
-- zu jeder bestimmten Webseite gehoert ein Verarbeitungsmuster, das bestimmt, welche Informationen zum Morsen herausgefiltert werden, welche Prioritaet die Seite aufweist, wie lang ihr Beitrag hoechstens sein darf und wie haeufig sie gesendet werden soll (cfg-Dateien)
-- evtl werden vor dem Einfuegen in den Morsestrom weitere Pruefungen angewendet: nur plausible Zeichen? sinnvoller Text? "verbotene Woerter"?
-- zur Bestimmung der Morsezeit und zum Morsen dienen separate Programme; Morsen erfolgt bevorzugt ueber ein System wie lpr
-
-#### Zusatzprogramme:
-
-- Morseprogramm (asynchron)
-- Morsezeitprogramm (Bestimmung der Zeit zum Morsen eines Textes)
-- Textladeprogramme (lynx, cat, XML-Interpreter...)
-
-### Konfigurationsdateien
-
-#### allgemein:
-
-- SLICETIME: Zeitscheibenlaenge
-- Anzahl vorauszuberechnender Zeitscheiben
-
-#### textspezifisch:
-
-##### config
-
-- PRIORITY: Prioritaet P: 10=max, 99=min
-- SOURCE: Quelle (URL, Datei, ...); bei mehreren Quellen erste erfolgreich
-  abgerufene, Quellangabe (ID) wird dann mit Indexnummer (1,2,...) versehen
-- POLLTIME: Abrufhaeufigkeit oder -zeit (crontab?)
-- PREPROCESSOR: Def. Programm (lynx, wvText, ...) zum Praeprozessing
-- POSTPROCESSOR: Def. Programm/Skript zum Postprozessing (Umlaute, verbotene Woerter, ...) (optional)
-- MINLENGTH, MAXLENGTH, MINHANDLE, MAXHANDLE: Minimal-&Maximallaenge, wenn unter/ueberschritten, ganzer Text ignoriert (fatal) oder abgeschnitten (warn) (optional)
-- TXINTERVAL: Sendeintervall (in sec, 1= sofort sobald neue Version)
-- ERRORREPORT: Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fuer Zusatzinfo (optional)
-
-##### recipe
-
-- Name
-- Anfangs-&Ende-Regexp als s///-Pattern, mehrzeilig = eine oder mehrere Regexp, die alle erfuellt sein muessen
-- Abbruchanweisungen, wenn Regexp misslingen: ignorieren des Blockes (warn) oder ignorieren des ganzen Textes (fatal) oder (wenn Ende-Regexp misslingt) Rest uebernehmen
-
-##### outputform
-
-- Textblocknamen
-- verbatim-Text
-- Programm-Variablen (QTR, QTC, ...)
-
-### Programm-Erstellung
-
-erfolgt ueber Minimierung einer Kostenfunktion
-
-#### allgemeine Kosten:
-
-- Leerzeit in Zeitscheibe: `q.n=Zeit([Prio.10-49]/Zeitscheibenlaenge)`
-- Konstanten in Kostenfunktion: `k.A, k.P, g.(), f.()`
-
-#### Einzelkosten:
-
-- Prioritaet: `P.j=Prio^k.P` mit zB `k.P=2`
-- Zerreissen eines Textes: `p.j1=Stueckzahl-1`
-- Unterdruecken eines Textes: `p.j2=(unterdrueckt?1:0)`
-- Kuerzen eines Textes: `p.j3=100*Kuerzung/Textlaenge`
-- Alter relativ zu Sendeintervall: `p.j4=(Alter/Intervall)^k.A` mit zB `k.A=2`
-
-#### Kostenfunktion:
-
-fuer einzelne Zeitscheibe:
-`S.n= g.n*q.n + sum.j(P.j*[1+sum.k(f.k*p.jk)])`
-
-mit Gewichtungsfaktoren `g.n` und `f.k`
-
-Total:
-`T= sum.n(S.n/n)` mit
-n="Unsicherheitsfaktor Zukunft"
-
-#### Ablauf:
-
-- Ziel: Gesamtkosten minimieren
-- Startwert: Texte nach Prio aufsteigend und Laenge absteigend angeordnet
-- Verfahren: von vorne beginnend umstellen
-- Abbruchbedingungen:
-  - neuer Text eingetroffen mit hoeherer Prio als vorhanden
-  - keine Zeit mehr vor Sendebeginn
