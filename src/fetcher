@@ -17,10 +17,8 @@ case $proto in
 file)
  statstat=`stat --help 2>&1|head -n 1`
  case $statstat in
- Usage*)
-  gen=`ls -l --time-style=+%s "$src" | { read _ _ _ _ _ t _ ; echo $t ; }` ;;
- "stat: unknown option*")
-  gen=`date +%s` ;;
+ Usage*) gen=`stat -c %Y "$src"` ;;
+ "stat: unknown option*") gen=`date +%s` ;;
  *) gen=`date +%s` ;;
  esac
  cat "$src" >$tmpf
