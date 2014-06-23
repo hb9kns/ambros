@@ -10,8 +10,16 @@ proto=${1%%://*}
 src="${1#*://}"
 gen=-1
 tmpf=${TMP:-/tmp}/fetcher-$proto-$$.tmp
-logf=${TMP:-/tmp}/fetcher-wget-`date +%y%U`.log
+logf=${TMP:-/tmp}/fetcher-log-`date +%y%U`.log
 #echo ::$tmpf::
+
+logit () { echo : "$@" >>$logf ; }
+
+cat <<EOT >>$logf
+
+# fetcher at `date`
+
+EOT
 
 case $proto in
 file)
@@ -22,8 +30,10 @@ file)
  *) gen=`date +%s` ;;
  esac
  cat "$src" >$tmpf
+ logit getting file: $src ...
  ;;
 http|https|ftp)
+ logit wget ...
  wget -a $logf -O $tmpf -T 60 "$proto://$src" && gen=`date +%s`
  ;;
 gopher)
@@ -40,7 +50,10 @@ if test $gen -gt 0
 then
  cat $tmpf
  gen=0
-else gen=1
+ logit ok
+else
+ gen=1
+ logit FAILED
 fi
 
 rm -f $tmpf
