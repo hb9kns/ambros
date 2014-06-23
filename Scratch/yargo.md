@@ -10,12 +10,20 @@ benannt nach ihrer Kurzbezeichnung `IDENTIFICATION`.
 
 ### Kanal
 
+#### Konstanten
+
 - SLICETIME: Zeitscheibenlaenge
 - SLICEDEPTH: Anzahl vorauszuberechnender Zeitscheiben
 - POSTPROCESSOR: Skript zum Postprozessing: Umlaute, verbotene Woerter, ...
 - WPM: Tastgeschwindigkeit (kann durch Rezept oder Prio veraendert werden)
 
+#### Variablen
+
+- XXXSTATUS: oberste aktuell laufende XXX-Prioritaet (20=PPP, falls keine)
+
 ### Quelle
+
+#### Konstanten
 
 - IDENTIFICATION: eindeutiges "Wort" (nur Buchstaben), so kurz wie moeglich
 - PRIORITY: Prioritaet P: 10=max, 99=min (kann durch Rezept veraendert werden)
@@ -26,11 +34,16 @@ benannt nach ihrer Kurzbezeichnung `IDENTIFICATION`.
 - INTERVAL: Sendeintervall (in sec, 0= sofort sobald neue Version)
 - ERRORREPORT: Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fuer Zusatzinfo (optional)
 
+#### Variablen
+
+- LASTMARK: Hash oder sonstiger Schluessel auf letzte/aktuelle Version
+  (zur Filterung gleicher Quelltexte trotz unterschiedlichem Zeitstempel)
+
 ## Komponenten
 
 ### Zeitmesser(WpM, Laenge/sec; stdin/stdout)
 
-_ok, shellscript_
+_ok, shellscript_ `src/morse/sniptime`
 
 - Eingabetext auf stdin
 - wenn `Laenge>0`: stdout erhaelt auf Laenge[sec] (gemaess WpM) abgemessenen Text (stdin abgeschnitten)
@@ -53,7 +66,7 @@ _ok, shellscript_
 
 ### Sauger(Def:URLs)
 
-_ok, shellscript_
+_ok, shellscript_ `src/fetcher`
 
 - gestartet von `Bereiter`
 - holt Rohdaten von Net/Mail/File mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile
@@ -67,8 +80,8 @@ _ok, shellscript_
 ### Sendechef(SendeTexte,XXX)
 
 - erzeugt Textstrom fuer `Sender`, meldet Filestatus zurueck an `Schneider`
-- unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei mit _Index_ `000000` im Namen)
-- nimmt je Kanalprefix ersten `SendeText`, loescht ihn nach erfolgreicher Uebergabe an `Sender`
+- unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei mit _Index_ `10..19` im Namen, falls kleiner als aktuell laufendes XXX)
+- nimmt je Kanalprefix ersten `SendeText`, verschiebt ihn nach erfolgreicher Uebergabe an `Sender` in Papierkorb/Log
 - je Kanalprefix nur eine Instanz
 
 ### Sender(Textstrom)
