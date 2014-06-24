@@ -56,6 +56,8 @@ _ok, shellscript_ `src/morse/sniptime`
 
 ### Planer(Def:GlobalKonfig)
 
+_shellscript_ `src/ambros`
+
 - startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
 - startet und ueberwacht `Abfuhr`
 
