@@ -1,0 +1,63 @@
+#!/bin/sh
+# ambros:
+# control script for one channel
+
+# directory of scripts
+cd `dirname $0`
+AMBROSDIR=`pwd`
+
+# read global settings
+. $AMBROSDIR/constants.sh
+
+if test "$1" = ""
+then cat <<EOT
+usage: $0 <channeldir>
+
+AMBROS control script for channel <channeldir>
+EOT
+exit 1
+fi
+
+# (re)generate morse code table
+cd $AMBROSDIR/morse && ./chargen.sh
+cd $AMBROSDIR
+
+channeldir="$1"
+if test ! -d "$channeldir" -o ! -x "$channeldir" -o ! -r "$channeldir" -o ! -w "$channeldir"
+then echo "$channeldir is not read/write/executable directory, aborting!"
+exit 2
+fi
+
+cd "$channeldir"
+echo working in channel $channeldir
+speed=`configread $CHANNELCONFIG wpm`
+speed=${speed:-12}
+echo at speed $speed Words/min
+
+# handler for aborting
+finish () {
+ echo "received abort signal, stopping all subprocesses"
+# if no PID is set, use 1 (init) as a dummy argument
+ /bin/kill -TERM ${pidassembler:-1} $pidchannelchief
+ echo ending main control loop
+ date +"at %c"
+ AMBROSABORT=1
+}
+AMBROSABORT=0
+ 
+trap finish INT TERM STOP
+
+echo entering main control loop with PID $$ at
+date +"at %c"
+
+while test $AMBROSABORT -eq 0
+do : # main control loop
+
+# poll&process sources with `extractor`
+# start&control `assembler`
+# start&control `channelchief`
+
+done
+
+echo finished.
+

@@ -43,8 +43,8 @@ rss)
 *) gen=-1 ;;
 esac
 
-echo $AMBROSPBLSRC $proto://$src
-echo $AMBROSPBLGEN $gen
+echo $PBLSRC $proto://$src
+echo $PBLGEN $gen
 echo
 if test $gen -gt 0
 then

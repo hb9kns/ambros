@@ -2,16 +2,16 @@
 # functions, strings and other constants for shell scripts
 
 # header names
-AMBROSPBLPRI=PRIORITY
-AMBROSPBLIDX=INDEX
-AMBROSPBLDCY=DECAY
-AMBROSPBLDUR=DURATION
-AMBROSPBLWPM=WPM
-AMBROSPBLGEN=GENESIS
-AMBROSPBLSRC=SOURCE
+PBLPRI=PRIORITY
+PBLIDX=INDEX
+PBLDCY=DECAY
+PBLDUR=DURATION
+PBLWPM=WPM
+PBLGEN=GENESIS
+PBLSRC=SOURCE
 
 # name of congiguration file in channel directory
-AMBROSCHANNELCONFIG=.channel.cfg
+CHANNELCONFIG=.channel.cfg
 
 # function to read config value by name
 # arguments: configfile name

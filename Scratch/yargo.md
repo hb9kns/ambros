@@ -16,6 +16,7 @@ benannt nach ihrer Kurzbezeichnung `IDENTIFICATION`.
 - SLICEDEPTH: Anzahl vorauszuberechnender Zeitscheiben
 - POSTPROCESSOR: Skript zum Postprozessing: Umlaute, verbotene Woerter, ...
 - WPM: Tastgeschwindigkeit (kann durch Rezept oder Prio veraendert werden)
+- SOURCES: Liste von IDENTIFICATIONs (Quellen), welche gesendet werden sollen
 
 #### Variablen
 
@@ -59,11 +60,13 @@ _ok, shellscript_ `src/morse/sniptime`
 _shellscript_ `src/ambros`
 
 - startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
-- startet und ueberwacht `Abfuhr`
+- ruft Quellen regelmaessig ab mittels `Bereiter`
 
 ### Bereiter(Def:Rezepte,Def:Prio,Def:URLs)
 
-- gestartet von `Schneider`
+_shellscript_ `scr/extractor`
+
+- gestartet von `Planer`
 - holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit PBL fuer Quellenangaben u Prioritaeten)
 
 ### Sauger(Def:URLs)
@@ -75,11 +78,15 @@ _ok, shellscript_ `src/fetcher`
 
 ### Schneider(Filestatus,SauberTexte)
 
+_shellscript_ `src/assembler`
+
 - erstellt `SendeTexte` (formatierte Texte) via Filesystem fuer `Sendechef`, basierend auf aktuellem Status und _Durchsatzoptimierung_
 - erzeugt Filenamen aufsteigend je Kanalprefix
 - je Kanalprefix nur eine Instanz
 
 ### Sendechef(SendeTexte,XXX)
+
+_shellscript_ `scr/channelchief`
 
 - erzeugt Textstrom fuer `Sender`, meldet Filestatus zurueck an `Schneider`
 - unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei mit _Index_ `10..19` im Namen, falls kleiner als aktuell laufendes XXX)
