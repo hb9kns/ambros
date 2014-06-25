@@ -42,7 +42,7 @@ benannt nach ihrer Kurzbezeichnung `IDENTIFICATION`.
 
 ## Komponenten
 
-### Zeitmesser(WpM, Laenge/sec; stdin/stdout)
+### Zeitmesser
 
 _ok, shellscript_ `src/morse/sniptime`
 
@@ -55,28 +55,28 @@ _ok, shellscript_ `src/morse/sniptime`
     b -...
     ...
 
-### Planer(Def:GlobalKonfig)
+### Planer
 
 _shellscript_ `src/ambros`
 
 - startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
 - ruft Quellen regelmaessig ab mittels `Bereiter`
 
-### Bereiter(Def:Rezepte,Def:Prio,Def:URLs)
+### Bereiter
 
 _shellscript_ `scr/extractor`
 
 - gestartet von `Planer`
 - holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit PBL fuer Quellenangaben u Prioritaeten)
 
-### Sauger(Def:URLs)
+### Sauger
 
 _ok, shellscript_ `src/fetcher`
 
 - gestartet von `Bereiter`
 - holt Rohdaten von Net/Mail/File mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile
 
-### Schneider(Filestatus,SauberTexte)
+### Schneider
 
 _shellscript_ `src/assembler`
 
@@ -84,7 +84,7 @@ _shellscript_ `src/assembler`
 - erzeugt Filenamen aufsteigend je Kanalprefix
 - je Kanalprefix nur eine Instanz
 
-### Sendechef(SendeTexte,XXX)
+### Sendechef
 
 _shellscript_ `scr/channelchief`
 
@@ -93,7 +93,7 @@ _shellscript_ `scr/channelchief`
 - nimmt je Kanalprefix ersten `SendeText`, verschiebt ihn nach erfolgreicher Uebergabe an `Sender` in Papierkorb/Log
 - je Kanalprefix nur eine Instanz
 
-### Sender(Textstrom)
+### Sender
 
 - erzeugt A1A-Signal aus Textstrom-Zeichen
 - je Kanalprefix nur eine Instanz

@@ -10,8 +10,11 @@ PBLWPM=WPM
 PBLGEN=GENESIS
 PBLSRC=SOURCE
 
-# name of congiguration file in channel directory
-CHANNELCONFIG=.channel.cfg
+# timeout [sec] for fetch operations
+FETCHTIMEOUT=50
+
+# name of configuration file in channel directory
+CHANNELCONFIG=channelconfig.cfg
 
 # function to read config value by name
 # arguments: configfile name

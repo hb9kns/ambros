@@ -6,12 +6,20 @@
 
 . `dirname $0`/constants.sh
 
+# parse protocol and source from argument
 proto=${1%%://*}
 src="${1#*://}"
+
+# genesis time, less than 0 means failure
 gen=-1
+
+# temporary and log file
 tmpf=${TMP:-/tmp}/fetcher-$proto-$$.tmp
 logf=${TMP:-/tmp}/fetcher-log-`date +%y%U`.log
 #echo ::$tmpf::
+
+# timeout for total script is 3 times that for fetch operation
+timeout=`expr $FETCHTIMEOUT '*' 3`
 
 logit () { echo : "$@" >>$logf ; }
 
@@ -34,7 +42,7 @@ file)
  ;;
 http|https|ftp)
  logit wget ...
- wget -a $logf -O $tmpf -T 60 "$proto://$src" && gen=`date +%s`
+ wget -a $logf -O $tmpf -T $FETCHTIMEOUT "$proto://$src" && gen=`date +%s`
  ;;
 gopher)
  ;;
