@@ -30,7 +30,7 @@ fi
 
 cd "$channeldir"
 echo working in channel $channeldir
-speed=`configread $CHANNELCONFIG $PBLWPM`
+speed=`configread $CHANNELCONFIG WPM`
 speed=${speed:-12}
 echo at speed $speed Words/min
 

@@ -51,8 +51,8 @@ rss)
 *) gen=-1 ;;
 esac
 
-echo $PBLSRC $proto://$src
-echo $PBLGEN $gen
+echo SOURCE $proto://$src
+echo GENESIS $gen
 echo
 if test $gen -gt 0
 then

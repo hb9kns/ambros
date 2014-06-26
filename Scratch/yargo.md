@@ -2,6 +2,9 @@
 
 ## Konfiguration
 
+Globales Konfigurationsfile `ambros.cfg` enthaelt Verweis auf Kanal- und
+Quellenverzeichnis.
+
 Jeder Kanal hat ein eigenes Verzeichnis mit Konfigurationsdateien und
 aktuellem Status sowie den SendeTexten.
 
@@ -131,7 +134,7 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 - `INDEX` Index (Ganzzahl)
 - `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
 - `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
-- `WPM` Tempo [WPM], minimal 1, maximal 255
+- `WPM` Tempo [WPM], minimal 1
 - `GENESIS` Erstellungszeit [sec]
 - `SOURCE` Quelle (URL)
 - `IDENTIFICATION` Kurzbezeichnung (Wort, optional da durch Quelle gegeben)
@@ -165,15 +168,7 @@ Format wie SauberText, allenfalls whitespace umformatiert
 
 #### PBL-Zeilen (Bezeichner grossgeschrieben)
 
-_alle optional ausser_ `WPM`
-
-- `PRIORITY` Prioritaet (10..99, normalerweise nur 10..59)
-- `INDEX` Index (Ganzzahl)
-- `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
-- `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
-- `WPM` Tempo [WPM], minimal 1, maximal 255
-- `GENESIS` Erstellungszeit [sec, Ursprung fix je Installation/Plattform]
-- `SOURCE` Quelle (URL)
+wie oben, jedoch _alle optional ausser_ `WPM`
 
 ---
 

@@ -1,20 +1,14 @@
 #!/bin/sh
 # functions, strings and other constants for shell scripts
 
-# header names
-PBLPRI=PRIORITY
-PBLIDX=INDEX
-PBLDCY=DECAY
-PBLDUR=DURATION
-PBLWPM=WPM
-PBLGEN=GENESIS
-PBLSRC=SOURCE
+# for relation between dit unit and speed in words/min
+# VVVVV=64, CODEX=60, PARIS=50
+SPEEDBASE=50
+# default speed [words/minute]
+DEFAULTWPM=12
 
 # timeout [sec] for fetch operations
 FETCHTIMEOUT=50
-
-# name of configuration file in channel directory
-CHANNELCONFIG=channelconfig.cfg
 
 # function to read config value by name
 # arguments: configfile name
