@@ -2,34 +2,45 @@
 # ambros:
 # control script for one channel
 
-# directory of scripts
-cd `dirname $0`
-AMBROSDIR=`pwd`
-
-# read global settings
-. $AMBROSDIR/constants.sh
-
 if test "$1" = ""
 then cat <<EOT
-usage: $0 <channeldir>
+usage: $0 <configfile>
 
-AMBROS control script for channel <channeldir>
+start AMBROS control instance configured by <configfile>
 EOT
 exit 1
 fi
 
-# (re)generate morse code table
-cd $AMBROSDIR/morse && ./chargen.sh
-cd $AMBROSDIR
+# save directories of scripts and instance (configuration file)
+# is somewhat complicated to correctly handle relative paths
+# (not using $OLDPWD etc to keep better portability)
+owd=`pwd`
+cd `dirname $0`
+AMBROSDIR=`pwd`
+echo AMBROSDIR: $AMBROSDIR
+cd "$owd"
+cd `dirname $1`
+ROOTDIR=`pwd`
+echo ROOTDIR: $ROOTDIR
 
-channeldir="$1"
-if test ! -d "$channeldir" -o ! -x "$channeldir" -o ! -r "$channeldir" -o ! -w "$channeldir"
-then echo "$channeldir is not read/write/executable directory, aborting!"
+cd $AMBROSDIR || { echo "cannot access scripts in $AMBROSDIR" ; exit 3 ; }
+echo :: `pwd`
+# read global settings
+. ./constants.sh
+# (re)generate morse code table
+cd morse && ./chargen.sh
+
+if test ! -d "$ROOTDIR" -o ! -x "$ROOTDIR" -o ! -r "$ROOTDIR" -o ! -w "$ROOTDIR"
+then echo "$ROOTDIR is not read/write/executable directory, aborting!"
 exit 2
 fi
 
-cd "$channeldir"
-echo working in channel $channeldir
+# get channel list
+cd "$ROOTDIR"
+channels=`configread $1 channels`
+echo channels: $channels
+
+echo working in channel $ROOTDIR
 speed=`configread $CHANNELCONFIG WPM`
 speed=${speed:-12}
 echo at speed $speed Words/min

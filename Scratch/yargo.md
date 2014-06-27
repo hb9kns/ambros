@@ -2,14 +2,25 @@
 
 ## Konfiguration
 
-Globales Konfigurationsfile `ambros.cfg` enthaelt Verweis auf Kanal- und
-Quellenverzeichnis.
+Globales Konfigurationsfile `ambros.cfg` enthaelt Verweis auf Kanalnamen.
 
-Jeder Kanal hat ein eigenes Verzeichnis mit Konfigurationsdateien und
-aktuellem Status sowie den SendeTexten.
+Jeder Kanal hat ein eigenes Verzeichnis mit Konfigurationsdatei und
+aktuellem Status sowie den SendeTexten. Die benoetigten Quellen sind
+implizit dort definiert.
 
+Alle Quellen sind in einem separaten Verzeichnis `sources` abgelegt.
 Jede Quelle hat ein eigenes Verzeichnis mit abgelegten SauberTexten,
 benannt nach ihrer Kurzbezeichnung `IDENTIFICATION`.
+
+Struktur innerhalb des Verzeichnisses mit `ambros.cfg`:
+
+- Kanal1
+- Kanal2
+- KanalN
+- sources
+  - Quelle1
+  - Quelle2
+  - QuelleN
 
 ### Kanal
 
