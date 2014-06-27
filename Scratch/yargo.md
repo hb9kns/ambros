@@ -2,22 +2,22 @@
 
 ## Konfiguration
 
-Globales Konfigurationsfile `ambros.cfg` enthaelt Verweis auf Kanalnamen.
+Kontrollskript `ambros.sh` muss in Verzeichnis gestartet werden, das Kanalverzeichnisse enthaelt, und zu benutzende Kanalnamen als Argumente erhalten.
 
 Jeder Kanal hat ein eigenes Verzeichnis mit Konfigurationsdatei und
 aktuellem Status sowie den SendeTexten. Die benoetigten Quellen sind
 implizit dort definiert.
 
-Alle Quellen sind in einem separaten Verzeichnis `sources` abgelegt.
+Alle Quellen sind in einem separaten Verzeichnis `textsources` abgelegt.
 Jede Quelle hat ein eigenes Verzeichnis mit abgelegten SauberTexten,
 benannt nach ihrer Kurzbezeichnung `IDENTIFICATION`.
 
-Struktur innerhalb des Verzeichnisses mit `ambros.cfg`:
+Verzeichnisstruktur:
 
 - Kanal1
 - Kanal2
 - KanalN
-- sources
+- textsources
   - Quelle1
   - Quelle2
   - QuelleN
@@ -288,4 +288,3 @@ Bit 7 muss gesetzt sein fuer Morsedaten, geloescht fuer Steuerdaten
 - 0x20 .. 0x2F = Kommentar (inkl Argument komplett ignoriert)
 
 ---
-
