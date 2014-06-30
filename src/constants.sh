@@ -15,7 +15,7 @@ FETCHTIMEOUT=50
 # value in stdout, exit nonzero if error
 # if separators are given, will be replaced by SPC in output
 # (e.g ',;' will result in returning "a,b;c" as "a b c")
-# WARNING: DO NOT USE '\' in values or separators!
+# WARNING: DO NOT USE '`' in values or separators!
 configread () {
  local retline retval separators
 # check if config file readable, else fail
@@ -28,5 +28,5 @@ configread () {
  separators=${3:-' '}
 # return second word from read line and substitute separators by SPC
  echo $retline | { read _ retval _ ; echo $retval ; } |
-  sed -e "s\\$separators\\ \\g"
+  sed -e "s\`$separators\` \`g"
 }
