@@ -11,20 +11,20 @@ EOT
 exit 1
 fi
 
-# save directories of scripts and instance (configuration file)
+# save directories of scripts and instance ("root", configuration file)
 # is somewhat complicated to correctly handle relative paths
 # (not using $OLDPWD etc to keep better portability)
 owd=`pwd`
 cd `dirname $0`
-AMBROSDIR=`pwd`
-echo AMBROSDIR: $AMBROSDIR
+SCRIPTDIR=`pwd`
+echo SCRIPTDIR: $SCRIPTDIR
 cd "$owd"
 cd `dirname $1`
 ROOTDIR=`pwd`
 echo ROOTDIR: $ROOTDIR
+AMBROSCONFIG=`basename $1`
 
-cd $AMBROSDIR || { echo "cannot access scripts in $AMBROSDIR" ; exit 3 ; }
-echo :: `pwd`
+cd $SCRIPTDIR || { echo "cannot access scripts in $SCRIPTDIR" ; exit 3 ; }
 # read global settings
 . ./constants.sh
 # (re)generate morse code table
@@ -37,13 +37,12 @@ fi
 
 # get channel list
 cd "$ROOTDIR"
-channels=`configread $1 channels`
-echo channels: $channels
-
 echo working in channel $ROOTDIR
-speed=`configread $CHANNELCONFIG WPM`
-speed=${speed:-12}
-echo at speed $speed Words/min
+channels=`configread $AMBROSCONFIG channels ,`
+echo channels: $channels
+GLOBALSPEED=`configread $AMBROSCONFIG WPM`
+GLOBALSPEED=${GLOBALSPEED:-12}
+echo global speed $GLOBALSPEED Words/min
 
 # handler for aborting
 finish () {
@@ -58,7 +57,7 @@ AMBROSABORT=0
  
 trap finish INT TERM STOP
 
-echo entering main control loop with PID $$ at
+echo entering main control loop with PID $$
 date +"at %c"
 
 while test $AMBROSABORT -eq 0

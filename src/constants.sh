@@ -11,16 +11,22 @@ DEFAULTWPM=12
 FETCHTIMEOUT=50
 
 # function to read config value by name
-# arguments: configfile name
+# arguments: configfile name [separators]
 # value in stdout, exit nonzero if error
+# if separators are given, will be replaced by SPC in output
+# (e.g ',;' will result in returning "a,b;c" as "a b c")
+# WARNING: DO NOT USE '\' in values or separators!
 configread () {
- local retline retval
+ local retline retval separators
 # check if config file readable, else fail
  test -r "$1" || return 2
 # get last line with name (possibly surrounded by whitespace)
  retline=`grep -i "^[ 	]*$2[ 	]" "$1"|tail -n 1`
 # fail if nothing found
  test "$retline" != "" || return 1
-# return second word from read line
- echo $retline | { read _ retval _ ; echo $retval ; }
+# if no separators given, replace ' ' with ' ' ie NOP
+ separators=${3:-' '}
+# return second word from read line and substitute separators by SPC
+ echo $retline | { read _ retval _ ; echo $retval ; } |
+  sed -e "s\\$separators\\ \\g"
 }
