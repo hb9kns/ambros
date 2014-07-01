@@ -38,8 +38,17 @@ fi
 # get channel list
 cd "$ROOTDIR"
 echo working in channel $ROOTDIR
-channels=`configread $AMBROSCONFIG channels ,`
-echo channels: $channels
+lchannels=`configread $AMBROSCONFIG channels ,`
+echo listed channels: $lchannels
+unset channels
+for ch in $lchannels
+do
+if test -d $ch -a -x $ch -a -r $ch -a -w $ch
+then channels="$ch $channels"
+else echo "channel $ch is not read/write/accessible directory, ignoring!"
+fi
+done
+
 GLOBALSPEED=`configread $AMBROSCONFIG WPM`
 GLOBALSPEED=${GLOBALSPEED:-12}
 echo global speed $GLOBALSPEED Words/min
