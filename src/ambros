@@ -31,9 +31,11 @@ cd $SCRIPTDIR || { echo "cannot access scripts in $SCRIPTDIR" ; exit 3 ; }
 cd morse && ./chargen.sh
 
 if test ! -d "$ROOTDIR" -o ! -x "$ROOTDIR" -o ! -r "$ROOTDIR" -o ! -w "$ROOTDIR"
-then echo "$ROOTDIR is not read/write/executable directory, aborting!"
+then echo "base directory ($ROOTDIR) is not usable, aborting!"
 exit 2
 fi
+
+echo
 
 # get channel list
 cd "$ROOTDIR"
@@ -49,22 +51,33 @@ else echo "channel $ch is not read/write/accessible directory, ignoring!"
 fi
 done
 
+echo
+
 GLOBALSPEED=`configread $AMBROSCONFIG WPM`
 GLOBALSPEED=${GLOBALSPEED:-12}
 echo global speed $GLOBALSPEED Words/min
 
+cd "$ROOTDIR"
+if test ! -d "$SOURCEDIR" -o ! -x "$SOURCEDIR" -o ! -r "$SOURCEDIR" -o ! -w "$SOURCEDIR"
+then echo "source directory ($ROOTDIR/$SOURCEDIR) is unusable, aborting!"
+exit 2
+fi
+
 # handler for aborting
 finish () {
- echo "received abort signal, stopping all subprocesses"
+ echo
+ echo received abort signal: stopping all subprocesses
 # if no PID is set, use 1 (init) as a dummy argument
  /bin/kill -TERM ${pidassembler:-1} $pidchannelchief
- echo ending main control loop
+ echo and ending main control loop
  date +"at %c"
  AMBROSABORT=1
 }
 AMBROSABORT=0
  
 trap finish INT TERM STOP
+
+echo
 
 echo entering main control loop with PID $$
 date +"at %c"
@@ -78,5 +91,6 @@ do : # main control loop
 
 done
 
+echo
 echo finished.
 

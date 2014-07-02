@@ -5,10 +5,13 @@
 # VVVVV=64, CODEX=60, PARIS=50
 SPEEDBASE=50
 # default speed [words/minute]
-DEFAULTWPM=12
+DEFAULTWPM=23
 
 # timeout [sec] for fetch operations
 FETCHTIMEOUT=50
+
+# directory for text sources
+SOURCEDIR=textsources
 
 # function to read config value by name
 # arguments: configfile name [separators]

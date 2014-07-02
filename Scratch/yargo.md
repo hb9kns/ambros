@@ -2,7 +2,9 @@
 
 ## Konfiguration
 
-Kontrollskript `ambros.sh` muss in Verzeichnis gestartet werden, das Kanalverzeichnisse enthaelt, und zu benutzende Kanalnamen als Argumente erhalten.
+Kontrollskript `ambros.sh` muss in Verzeichnis gestartet werden,
+das Kanalverzeichnisse enthaelt, und globale Konfigurationsdatei
+als Argument erhalten.
 
 Jeder Kanal hat ein eigenes Verzeichnis mit Konfigurationsdatei und
 aktuellem Status sowie den SendeTexten. Die benoetigten Quellen sind
