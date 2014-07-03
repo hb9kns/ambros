@@ -1,0 +1,6 @@
+# sample channel configuration file
+SLICETIME	300 sec
+SLICEDEPTH	1
+POSTPROCESSOR	/bin/cat
+WPM		12 wpm
+SOURCES		ghi,jkl

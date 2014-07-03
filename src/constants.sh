@@ -10,8 +10,16 @@ DEFAULTWPM=23
 # timeout [sec] for fetch operations
 FETCHTIMEOUT=50
 
+# directory for temporary files
+TMP=/tmp
+TMP=/dev/shm
+
 # directory for text sources
 SOURCEDIR=textsources
+
+# configfiles
+CHANNELCONFIG=config
+SOURCECONFIG=config
 
 # function to read config value by name
 # arguments: configfile name [separators]
@@ -31,5 +39,5 @@ configread () {
  separators=${3:-' '}
 # return second word from read line and substitute separators by SPC
  echo $retline | { read _ retval _ ; echo $retval ; } |
-  sed -e "s\`$separators\` \`g"
+  sed -e "s\`[$separators]\` \`g"
 }

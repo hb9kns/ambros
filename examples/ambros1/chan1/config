@@ -3,4 +3,4 @@ SLICETIME	600 sec
 SLICEDEPTH	2
 POSTPROCESSOR	/bin/cat
 WPM		23 wpm
-SOURCES		abc def ghi
+SOURCES		abc,def,ghi

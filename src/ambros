@@ -40,8 +40,10 @@ echo
 # get channel list
 cd "$ROOTDIR"
 echo working in channel $ROOTDIR
-lchannels=`configread $AMBROSCONFIG channels ,`
+lchannels=`configread $AMBROSCONFIG CHANNELS '.,:;/'`
 echo listed channels: $lchannels
+
+# collect channel directory names
 unset channels
 for ch in $lchannels
 do
@@ -77,19 +79,50 @@ AMBROSABORT=0
  
 trap finish INT TERM STOP
 
-echo
-
 echo entering main control loop with PID $$
-date +"at %c"
+
+tmpf=${TMP:-/tmp}/ambros$$.tmp
 
 while test $AMBROSABORT -eq 0
 do : # main control loop
+echo
+echo passing main control loop
+date +"at %c"
+
+# collect source names
+for ch in $channels
+do
+csources=`configread "$ch/$CHANNELCONFIG" SOURCES '.,:;/'`
+lsources="$csources $lsources"
+done
+#echo listed sources: $lsources
+cd $ROOTDIR/$SOURCEDIR
+{
+ for ls in $lsources
+ do echo $ls
+ done
+} | sort -r | uniq | {
+ while read sc
+ do
+ if test -d "$sc" -a -x "$sc" -a -r "$sc" -a -w "$sc"
+ then echo $sc
+ fi
+ done
+} > $tmpf
+sources=`cat $tmpf`
+echo currently valid sources: $sources
+
+# check sources names
 
 # poll&process sources with `extractor`
 # start&control `assembler`
 # start&control `channelchief`
 
+AMBROSABORT=99
+
 done
+
+rm -f $tmpf
 
 echo
 echo finished.
