@@ -112,9 +112,9 @@ cd $ROOTDIR/$SOURCEDIR
 sources=`cat $tmpf`
 echo currently valid sources: $sources
 
-# check sources names
+# fetch and process sources
+$SCRIPTDIR/extractor $sources
 
-# poll&process sources with `extractor`
 # start&control `assembler`
 # start&control `channelchief`
 

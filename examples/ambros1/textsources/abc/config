@@ -1,0 +1,6 @@
+PRIORITY	50
+POLLING		3600 sec
+RECIPE		filter.sh
+INTERVAL	3600
+ERRORRECIPIENT	mailto:john.doe@example.com
+SOURCE		/dev/null

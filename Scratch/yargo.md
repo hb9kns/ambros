@@ -42,14 +42,16 @@ Verzeichnisstruktur:
 
 #### Konstanten
 
-- IDENTIFICATION: eindeutiges "Wort" (nur Buchstaben), so kurz wie moeglich
+- IDENTIFICATION: eindeutiges "Wort" (nur Buchstaben), so kurz wie moeglich,
+  wird durch Verzeichnisname definiert
 - PRIORITY: Prioritaet P: 10=max, 99=min (kann durch Rezept veraendert werden)
 - SOURCE: Quelle (URL, Datei, ...); bei mehreren Quellen erste erfolgreich
   abgerufene, IDENTIFICATION wird dann mit Sub-ID (1,2,...) versehen
 - POLLING: Abrufintervall oder -zeit (crontab?)
 - RECIPE: Skript zur Verarbeitung
 - INTERVAL: Sendeintervall (in sec, 0= sofort sobald neue Version)
-- ERRORREPORT: Fehlermelde-Methode: e-mail, Sendung, Log; inkl Regexp/Textblock fuer Zusatzinfo (optional)
+- ERRORRECIPIENT: Fehlermelde-Methode: e-mail, Sendung, Log; optional
+  mit Regexp/Textblock fuer Zusatzinfo
 
 #### Variablen
 
