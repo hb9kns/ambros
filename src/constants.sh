@@ -10,9 +10,15 @@ DEFAULTWPM=23
 # timeout [sec] for fetch operations
 FETCHTIMEOUT=50
 
-# directory for temporary files
-TMP=/tmp
-TMP=/dev/shm
+# set directory for temporary files (only if no predefined value)
+if test "$TMP" = ""
+then
+# if possible, use ramdisk (on Linux)
+ if test -d /dev/shm
+ then TMP=/dev/shm
+ else TMP=/tmp
+ fi
+fi
 
 # directory for text sources
 SOURCEDIR=textsources
