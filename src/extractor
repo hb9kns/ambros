@@ -1,0 +1,13 @@
+#!/bin/sh
+# extractor <sources>
+# must be run in directory of <sources>
+# will process each source according to its configuration file
+# and save new clean text (if available) in same directory
+
+# read global settings
+. $SCRIPTDIR/constants.sh
+
+for source in $*
+do echo :$source
+done
+
