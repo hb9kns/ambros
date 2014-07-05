@@ -1,6 +1,6 @@
 # AMBROS
 
-*A*utomatic *M*orse code *BRO*adcasting *S*ystem
+*A*utonomous *M*orse code *BRO*adcasting *S*ystem
 
 Is Morse-Code on the way to die? It migh be, if not used anymore...
 To increase the amount of Morse code transmissions available to
@@ -27,4 +27,12 @@ In `scratch/`, contributors may create personal files with names
 starting with their user/account name, to store notes and other
 personal and project related information.
 Please do not tamper with other people's files!
+
+### src
+
+`src/` contains scripts or (in a later stage) sources for compilation
+
+#### morse
+
+`src/morse/` contains scripts or sources concerning Morse code generation
 
