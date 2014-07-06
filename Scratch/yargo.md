@@ -33,6 +33,7 @@ Verzeichnisstruktur:
 - POSTPROCESSOR: Skript zum Postprozessing: Umlaute, verbotene Woerter, ...
 - WPM: Tastgeschwindigkeit (kann durch Rezept oder Prio veraendert werden)
 - SOURCES: Liste von IDENTIFICATIONs (Quellen), welche gesendet werden sollen
+- PREFIX: Prefix fuer Quelltexte
 
 #### Variablen
 
@@ -55,8 +56,9 @@ Verzeichnisstruktur:
 
 #### Variablen
 
-- LASTMARK: Hash oder sonstiger Schluessel auf letzte/aktuelle Version
+- LASTHASH: Hash oder sonstiger Schluessel auf letzte/aktuelle Version
   (zur Filterung gleicher Quelltexte trotz unterschiedlichem Zeitstempel)
+- INDEX: laufende Nummer
 
 ## Komponenten
 

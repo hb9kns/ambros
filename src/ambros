@@ -113,7 +113,8 @@ sources=`cat $tmpf`
 echo currently valid sources: $sources
 
 # fetch and process sources
-SCRIPTDIR="$SCRIPTDIR" $SCRIPTDIR/extractor $sources
+SCRIPTDIR="$SCRIPTDIR" $SCRIPTDIR/extractor a $sources
+cat $NEXTPOLLCONFIG
 
 # start&control `assembler`
 # start&control `channelchief`

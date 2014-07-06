@@ -10,6 +10,12 @@ DEFAULTWPM=23
 # timeout [sec] for fetch operations
 FETCHTIMEOUT=50
 
+# maximal source polling interval
+# one day
+MAXPOLLING=86400
+# file for saving next polling time
+NEXTPOLLCONFIG=nextpoll.cfg
+
 # set directory for temporary files (only if no predefined value)
 if test "$TMP" = ""
 then
@@ -24,8 +30,15 @@ fi
 SOURCEDIR=textsources
 
 # configfiles
-CHANNELCONFIG=config
-SOURCECONFIG=config
+CHANNELCONFIG=channel.cfg
+SOURCECONFIG=source.cfg
+
+# statusfiles
+CHANNELSTATUS=status.dat
+SOURCESTATUS=status.dat
+
+# initial values for source status file
+SOURCEINDEXSTART=100
 
 # function to read config value by name
 # arguments: configfile name [separators]
@@ -47,3 +60,9 @@ configread () {
  echo $retline | { read _ retval _ ; echo $retval ; } |
   sed -e "s\`[$separators]\` \`g"
 }
+
+# function to get current time (epoch) in seconds
+nowsec () {
+ date +%s
+}
+
