@@ -30,6 +30,15 @@ cd $SCRIPTDIR || { echo "cannot access scripts in $SCRIPTDIR" ; exit 3 ; }
 # (re)generate morse code table
 cd morse && ./chargen.sh
 
+# create temporary directory, ignore error if already existing
+mkdir $TMPDIR 2>/dev/null
+if test ! -d $TMPDIR
+then
+ echo cannot create temporary directory $TMPDIR - aborting!
+ exit 3
+fi
+echo : tempdir $TMPDIR
+
 if test ! -d "$ROOTDIR" -o ! -x "$ROOTDIR" -o ! -r "$ROOTDIR" -o ! -w "$ROOTDIR"
 then echo "base directory ($ROOTDIR) is not usable, aborting!"
 exit 2
@@ -39,7 +48,7 @@ echo
 
 # get channel list
 cd "$ROOTDIR"
-echo working in channel $ROOTDIR
+echo working in base directory $ROOTDIR
 lchannels=`configread $AMBROSCONFIG CHANNELS '.,:;/'`
 echo listed channels: $lchannels
 
@@ -81,7 +90,11 @@ trap finish INT TERM STOP
 
 echo entering main control loop with PID $$
 
-tmpf=${TMP:-/tmp}/ambros$$.tmp
+tmpf=$TMPDIR/ambros$$.tmp
+
+# for communication with extractor
+extractorfile=$TMPDIR/$EXTRACTORFILE
+echo : extractor comm file $extractorfile
 
 while test $AMBROSABORT -eq 0
 do : # main control loop
@@ -112,9 +125,9 @@ cd $ROOTDIR/$SOURCEDIR
 sources=`cat $tmpf`
 echo currently valid sources: $sources
 
-# fetch and process sources
-SCRIPTDIR="$SCRIPTDIR" $SCRIPTDIR/extractor a $sources
-cat $NEXTPOLLCONFIG
+# fetch and process sources ('_' for channel prefix, i.e 'all' for sources)
+SCRIPTDIR="$SCRIPTDIR" $SCRIPTDIR/extractor _ $extractorfile $sources
+cat $extractorfile
 
 # start&control `assembler`
 # start&control `channelchief`
@@ -123,8 +136,8 @@ AMBROSABORT=99
 
 done
 
-rm -f $tmpf
+# remove all temporary stuff
+#rm -rf $TMPDIR
 
 echo
 echo finished.
-

@@ -14,8 +14,8 @@ src="${1#*://}"
 gen=-1
 
 # temporary and log file
-tmpf=${TMP:-/tmp}/fetcher-$proto-$$.tmp
-logf=${TMP:-/tmp}/fetcher-log-`date +%y%U`.log
+tmpf=$TMPDIR/fetcher-$proto-$$.tmp
+logf=$TMPDIR/fetcher-log-`date +%y%U`.log
 #echo ::$tmpf::
 
 # timeout for total script is 3 times that for fetch operation

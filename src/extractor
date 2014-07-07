@@ -1,9 +1,10 @@
 #!/bin/sh
-# extractor <prefix> <source1> <source2> ...
+# extractor <prefix> <extractorfile> <source1> <source2> ...
 # must be run in directory of sources
 # will process each source according to its configuration file
 # and save new clean text (if available) in same directory
-# with <prefix> as start of name
+# with <prefix> as start of name and <extractorfile> for saving time
+# of earliest next polling (for job planning)
 
 # read global settings
 . $SCRIPTDIR/constants.sh
@@ -15,7 +16,8 @@ echo : starttime $starttime
 echo $0 working:
 
 prefix=$1
-shift
+extractorfile=$2
+shift 2
 
 for source in $*
 do echo :$source
@@ -58,9 +60,10 @@ LASTPOLL	$now
 EOT
  else echo : no configfile for $source found, ignoring
  fi
+# go back to channel directory
  cd ..
 done
 
 # save closest next polling time for controller
 echo : minpoll=$minpoll
-echo NEXTPOLL `expr $starttime + $minpoll` > $NEXTPOLLCONFIG
+echo NEXTPOLL `expr $starttime + $minpoll` > $extractorfile

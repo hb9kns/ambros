@@ -13,16 +13,16 @@ FETCHTIMEOUT=50
 # maximal source polling interval
 # one day
 MAXPOLLING=86400
-# file for saving next polling time
-NEXTPOLLCONFIG=nextpoll.cfg
+# file for communication with extractor
+EXTRACTORFILE=extractor.dat
 
-# set directory for temporary files (only if no predefined value)
-if test "$TMP" = ""
+# set directory for temporary files (only if no usable value)
+if test ! -d "$TMPDIR" -o ! -w "$TMPDIR" -o ! -x "$TMPDIR" -o ! -r "$TMPDIR"
 then
 # if possible, use ramdisk (on Linux)
  if test -d /dev/shm
- then TMP=/dev/shm
- else TMP=/tmp
+ then TMPDIR=/dev/shm/ambros
+ else TMPDIR=/tmp/ambros
  fi
 fi
 
