@@ -15,18 +15,10 @@ gen=-1
 
 # temporary and log file
 tmpf=$TMPDIR/fetcher-$proto-$$.tmp
-logf=$TMPDIR/fetcher-log-`date +%y%U`.log
+logf=`logfile fetcher`
 
 # timeout for total script is 3 times that for fetch operation
 timeout=`expr $FETCHTIMEOUT '*' 3`
-
-logit () { echo : "$@" >>$logf ; }
-
-cat <<EOT >>$logf
-
-# fetcher at `date`
-
-EOT
 
 case $proto in
 file)
@@ -39,10 +31,10 @@ file)
  *) gen=`date +%s` ;;
  esac
  cat "$src" >$tmpf
- logit getting file: $src ...
+ logit $logf $src get file
  ;;
 http|https|ftp)
- logit wget ...
+ logit $logf $src wget ...
  wget -a $logf -O $tmpf -T $FETCHTIMEOUT "$proto://$src" && gen=`date +%s`
  ;;
 gopher)
@@ -61,10 +53,10 @@ if test $gen -gt 0
 then
  cat $tmpf
  gen=0
- logit ok
+ logit $logf $src ok.
 else
  gen=1
- logit FAILED
+ logit $logf $src FAILED
 fi
 
 # reuse 'gen' variable for reporting of error status

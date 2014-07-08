@@ -26,9 +26,31 @@ then
  else TMPDIR=/tmp/ambros
  fi
 fi
+mkdir -p $TMPDIR || { echo cannot create tempdir $TMPDIR ; exit 4 ; }
+
+# could be part of temp dir, but may be independent (long-lasting)
+LOGDIR=/tmp/ambros/log
+mkdir -p $LOGDIR || { echo cannot create logdir $LOGDIR ; exit 4 ; }
+# logfile generator, argument is log name specification
+logfile () {
+ local lfile
+ lfile=$LOGDIR/$1-`date +%W`.log
+ echo "# $lfile  `date '+%c, week %W'`" >> $lfile
+}
+# logging to file=arg1 and to output with identification=arg2
+logit () {
+ local fn id
+ fn=$1
+ id=$2
+ shift 2
+ echo `date +%w%H%M` $id : $@ >> $fn
+ echo : $id : $@
+}
 
 # directory for text sources
 SOURCEDIR=textsources
+# suffix for file names
+SOURCEFILESUFFIX='.txt'
 
 # configfiles
 CHANNELCONFIG=channel.cfg

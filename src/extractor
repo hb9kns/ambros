@@ -10,14 +10,18 @@
 . $SCRIPTDIR/constants.sh
 tmpf=$TMPDIR/extractor.tmp
 
-minpoll=$MAXPOLLING
+minpoll=${MAXPOLLING:-999999}
 starttime=`nowsec`
 
 echo $0 working:
 
-prefix=$1
+# only one character for prefix
+prefix=`echo $1 | sed -e 's/\(.\).*/\1/'`
 reportfile=$2
 shift 2
+suffix=${SOURCEFILESUFFIX:-.txt}
+
+logf=`logfile extractor-$prefix`
 
 for source in $*
 do echo :$source
@@ -32,6 +36,8 @@ do echo :$source
    lasthash=`configread $SOURCESTATUS LASTHASH`
    lastpoll=`configread $SOURCESTATUS LASTPOLL`
   fi
+# for index, use source configuration or global start value
+  index=${index:-`configread $SOURCECONFIG MININDEX`}
   index=${index:-SOURCEINDEXSTART}
   lasthash=${lasthash:-nil}
   lastpoll=${lastpoll:-0}
@@ -43,17 +49,28 @@ do echo :$source
 # poll if passed
   if test $polling -le 0
   then
-   echo : now polling $source
+   logit $logf $source now polling
 # source descriptor (url, file, etc)
    desc=`configread $SOURCECONFIG SOURCE` || desc=file:///dev/null
    prio=`configread $SOURCECONFIG PRIORITY` || prio=$DEFAULTPRIORITY
    recipe=`configread $SOURCECONFIG RECIPE`
    if test ! -x "$recipe"
    then
-    echo :: ignoring non-executable recipe $recipe
+    logit $logf $source ignoring non-executable recipe $recipe
     recipe=/bin/cat
    fi
-   $SCRIPTDIR/fetcher "$desc" | "$recipe" > $tmpf
+# store headers for further processing
+   cat <<EOH >$tmpf
+IDENTIFICATION	$desc
+PRIORITY	$prio
+INDEX	$index
+DECAY	$decay
+EOH
+   if $SCRIPTDIR/fetcher "$desc" >> $tmpf
+   then
+    stname="$prefix$prio$index$suffix"
+   else logit $logf $source fetching or filtering failed
+   fi
 # re-read polling interval
    polling=`configread $SOURCECONFIG POLLING` || polling=$MAXPOLLING
   fi
@@ -67,7 +84,7 @@ INDEX		$index
 LASTHASH	$lasthash
 LASTPOLL	$now
 EOT
- else echo : no configfile for $source found, ignoring
+ else logit $logf $source no configfile found, ignoring
  fi
 # go back to channel directory
  cd ..

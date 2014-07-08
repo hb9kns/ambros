@@ -51,6 +51,8 @@ Verzeichnisstruktur:
 - POLLING: Abrufintervall oder -zeit (crontab?)
 - RECIPE: Skript zur Verarbeitung
 - INTERVAL: Sendeintervall (in sec, 0= sofort sobald neue Version)
+- MININDEX: minimaler INDEX-Wert (zB 100)
+- MAXINDEX: maximaler INDEX-Wert (zB 999, danach wieder MININDEX)
 - ERRORRECIPIENT: Fehlermelde-Methode: e-mail, Sendung, Log; optional
   mit Regexp/Textblock fuer Zusatzinfo
 
@@ -125,7 +127,7 @@ _0 ist reserviert fuer SendeText, siehe unten_
 10..19: XXX (EMERGENCY)
 20..29: PPP (URGENT)
 30..39: TTT (IMPORTANT)
-40..49: SSS (STANDARD)
+40..49: RRR (ROUTINE)
 50..59: VVV (FILLER)
 
 ## Dateiformate
@@ -150,8 +152,6 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 - `PRIORITY` Prioritaet (10..99, normalerweise nur 10..59)
 - `INDEX` Index (Ganzzahl)
 - `DECAY` Zerfallszeit [sec] fuer abnehmende Sendewahrscheinlichkeit
-- `DURATION` Dauer [sec], rein informativ (fuer Sendeplanerstellung)
-- `WPM` Tempo [WPM], minimal 1
 - `GENESIS` Erstellungszeit [sec]
 - `SOURCE` Quelle (URL)
 - `IDENTIFICATION` Kurzbezeichnung (Wort, optional da durch Quelle gegeben)
@@ -161,14 +161,13 @@ und deshalb optional; bei Widerspruechen haben sie jedoch Vorrang.
 
 #### Beispiel
 
-STANDARD (ROUTINE) von info@example.com, erhalten 2010-12-30,12:34, 48 sec lang, Tempo 20 WPM, gueltig (zu senden) bis 2011-2-3,04:05
+STANDARD (ROUTINE) von info@example.com, erhalten 2010-12-30,12:34, Zerfallszeit 43200 sec
 
-    PRIORITY 4
-    DECAY 201102030405
-    DURATION 48
-    WPM 20 wpm
-    GENESIS 201012301234
-    SOURCE mail:info@example.com
+    PRIORITY	44
+    INDEX	123
+    DECAY	43200
+    GENESIS	201012301234
+    SOURCE	mail:info@example.com
     
     == mail: info at example.com = this is a first test for mail input = 73 de example.com +
 
@@ -185,7 +184,10 @@ Format wie SauberText, allenfalls whitespace umformatiert
 
 #### PBL-Zeilen (Bezeichner grossgeschrieben)
 
-wie oben, jedoch _alle optional ausser_ `WPM`
+wie oben, jedoch _alle optional ausser:_
+
+- `DURATION` Sendedauer [sec]
+- `WPM` Speed [WpM]
 
 ---
 
