@@ -28,6 +28,10 @@ starting with their user/account name, to store notes and other
 personal and project related information.
 Please do not tamper with other people's files!
 
+### examples
+
+`examples/` contains sample or test configuration files
+
 ### src
 
 `src/` contains scripts or (in a later stage) sources for compilation
