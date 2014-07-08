@@ -1,22 +1,22 @@
 #!/bin/sh
-# extractor <prefix> <extractorfile> <source1> <source2> ...
+# extractor <prefix> <reportfile> <source1> <source2> ...
 # must be run in directory of sources
 # will process each source according to its configuration file
 # and save new clean text (if available) in same directory
-# with <prefix> as start of name and <extractorfile> for saving time
-# of earliest next polling (for job planning)
+# with <prefix> as start of name and <reportfile> for reporting
+# time of earliest next polling (for job planning) and other information
 
 # read global settings
 . $SCRIPTDIR/constants.sh
+tmpf=$TMPDIR/extractor.tmp
 
 minpoll=$MAXPOLLING
 starttime=`nowsec`
-echo : starttime $starttime
 
 echo $0 working:
 
 prefix=$1
-extractorfile=$2
+reportfile=$2
 shift 2
 
 for source in $*
@@ -25,28 +25,37 @@ do echo :$source
 # ignore directories without readable configuration file
  if test -r $SOURCECONFIG
  then
-# read status values (or set start values)
+# read status values or set default ones
   if test -r $SOURCESTATUS
   then
    index=`configread $SOURCESTATUS INDEX`
    lasthash=`configread $SOURCESTATUS LASTHASH`
    lastpoll=`configread $SOURCESTATUS LASTPOLL`
-  else
-   index=$SOURCEINDEXSTART
-   lasthash=nil
-   lastpoll=0
   fi
-# calculate time of next polling
-  polling=`configread $SOURCECONFIG POLLING`
+  index=${index:-SOURCEINDEXSTART}
+  lasthash=${lasthash:-nil}
+  lastpoll=${lastpoll:-0}
   now=`nowsec`
+# get polling interval, set to maximum if unset
+  polling=`configread $SOURCECONFIG POLLING` || polling=$MAXPOLLING
+# calculate time of next polling
   polling=`expr $lastpoll + $polling - $now`
 # poll if passed
   if test $polling -le 0
   then
    echo : now polling $source
-   
+# source descriptor (url, file, etc)
+   desc=`configread $SOURCECONFIG SOURCE` || desc=file:///dev/null
+   prio=`configread $SOURCECONFIG PRIORITY` || prio=$DEFAULTPRIORITY
+   recipe=`configread $SOURCECONFIG RECIPE`
+   if test ! -x "$recipe"
+   then
+    echo :: ignoring non-executable recipe $recipe
+    recipe=/bin/cat
+   fi
+   $SCRIPTDIR/fetcher "$desc" | "$recipe" > $tmpf
 # re-read polling interval
-   polling=`configread $SOURCECONFIG POLLING`
+   polling=`configread $SOURCECONFIG POLLING` || polling=$MAXPOLLING
   fi
 # calculate minimal future polling time
   if test $minpoll -lt $polling
@@ -65,5 +74,5 @@ EOT
 done
 
 # save closest next polling time for controller
-echo : minpoll=$minpoll
-echo NEXTPOLL `expr $starttime + $minpoll` > $extractorfile
+echo NEXTPOLL `expr $starttime + $minpoll` > $reportfile
+rm -f $tmpf

@@ -6,13 +6,14 @@
 SPEEDBASE=50
 # default speed [words/minute]
 DEFAULTWPM=23
+# default priority (ROUTINE)
+DEFAULTPRIORITY=42
 
 # timeout [sec] for fetch operations
 FETCHTIMEOUT=50
 
-# maximal source polling interval
-# one day
-MAXPOLLING=86400
+# maximal source polling interval: a bit more than one day
+MAXPOLLING=99999
 # file for communication with extractor
 EXTRACTORFILE=extractor.dat
 
@@ -51,7 +52,8 @@ configread () {
 # check if config file readable, else fail
  test -r "$1" || return 2
 # get last line with name (possibly surrounded by whitespace)
- retline=`grep -i "^[ 	]*$2[ 	]" "$1"|tail -n 1`
+# but ignore any line after separator '---'
+ retline=`sed -e '/^[ 	]*---/,$d' "$1"|grep -i "^[ 	]*$2[ 	]"|tail -n 1`
 # fail if nothing found
  test "$retline" != "" || return 1
 # if no separators given, replace ' ' with ' ' ie NOP

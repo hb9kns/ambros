@@ -16,7 +16,6 @@ gen=-1
 # temporary and log file
 tmpf=$TMPDIR/fetcher-$proto-$$.tmp
 logf=$TMPDIR/fetcher-log-`date +%y%U`.log
-#echo ::$tmpf::
 
 # timeout for total script is 3 times that for fetch operation
 timeout=`expr $FETCHTIMEOUT '*' 3`
@@ -32,9 +31,11 @@ EOT
 case $proto in
 file)
  statstat=`stat --help 2>&1|head -n 1`
+# handle different Linux and BSD stat commands
  case $statstat in
  Usage*) gen=`stat -c %Y "$src"` ;;
  "stat: unknown option"*) gen=`stat -f %a "$src"` ;;
+# if another type of stat, fall back to current time
  *) gen=`date +%s` ;;
  esac
  cat "$src" >$tmpf
@@ -51,8 +52,10 @@ rss)
 *) gen=-1 ;;
 esac
 
-echo SOURCE $proto://$src
+# line beginning with '---' is separator for configread function
 echo GENESIS $gen
+echo SOURCE $proto://$src
+echo '--- ::::::::: ---'
 echo
 if test $gen -gt 0
 then
@@ -64,5 +67,6 @@ else
  logit FAILED
 fi
 
+# reuse 'gen' variable for reporting of error status
 rm -f $tmpf
-exit $gen
+return $gen
