@@ -1,0 +1,2 @@
+current time: %QTR% UTC
+nnnn
