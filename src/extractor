@@ -8,12 +8,11 @@
 
 # read global settings
 . $SCRIPTDIR/constants.sh
-tmpf=$TMPDIR/extractor.tmp
+tmpf1=$TMPDIR/extractor1$$.tmp
+tmpf2=$TMPDIR/extractor2$$.tmp
 
 minpoll=${MAXPOLLING:-999999}
 starttime=`nowsec`
-
-echo $0 working:
 
 # only one character for prefix
 prefix=`echo $1 | sed -e 's/\(.\).*/\1/'`
@@ -22,9 +21,10 @@ shift 2
 suffix=${SOURCEFILESUFFIX:-.txt}
 
 logf=`logfile extractor-$prefix`
+logit $logf extractor working at $starttime:
 
 for source in $*
-do echo :$source
+do
  cd $source
 # ignore directories without readable configuration file
  if test -r $SOURCECONFIG
@@ -37,19 +37,23 @@ do echo :$source
    lastpoll=`configread $SOURCESTATUS LASTPOLL`
   fi
 # for index, use source configuration or global start value
-  index=${index:-`configread $SOURCECONFIG MININDEX`}
-  index=${index:-SOURCEINDEXSTART}
+  minindex=`configread $SOURCECONFIG MININDEX`
+  minindex=${minindex:-$MININDEX}
+  maxindex=`configread $SOURCECONFIG MAXINDEX`
+  maxindex=${maxindex:-$MAXINDEX}
+  index=${index:-$minindex}
   lasthash=${lasthash:-nil}
   lastpoll=${lastpoll:-0}
   now=`nowsec`
 # get polling interval, set to maximum if unset
   polling=`configread $SOURCECONFIG POLLING` || polling=$MAXPOLLING
+#echo : lastpoll $lastpoll : pollinterval $polling : now $now
 # calculate time of next polling
   polling=`expr $lastpoll + $polling - $now`
 # poll if passed
   if test $polling -le 0
   then
-   logit $logf $source now polling
+   logit $logf $source needs polling
 # source descriptor (url, file, etc)
    desc=`configread $SOURCECONFIG SOURCE` || desc=file:///dev/null
    prio=`configread $SOURCECONFIG PRIORITY` || prio=$DEFAULTPRIORITY
@@ -59,30 +63,46 @@ do echo :$source
     logit $logf $source ignoring non-executable recipe $recipe
     recipe=/bin/cat
    fi
-# store headers for further processing
-   cat <<EOH >$tmpf
+   if $SCRIPTDIR/fetcher "$desc" > $tmpf1
+   then
+    $recipe <$tmpf1 >$tmpf2
+    newhash=`hashfunction $tmpf2`
+    if test $lasthash != $newhash
+    then
+     stname="$prefix$prio$index$suffix"
+# PBL
+     cat <<EOH >$stname
 IDENTIFICATION	$desc
 PRIORITY	$prio
 INDEX	$index
 DECAY	$decay
 EOH
-   if $SCRIPTDIR/fetcher "$desc" >> $tmpf
-   then
-    stname="$prefix$prio$index$suffix"
-   else logit $logf $source fetching or filtering failed
+     cat $tmpf2 >>$stname
+     index=`expr $index + 1`
+     if test $index -gt $maxindex
+     then index=$minindex
+     fi
+     logit $logf $source fetched with new hash $newhash
+     lasthash=$newhash
+     lastpoll=$now
+    else
+     logit $logf $source has same hash $newhash
+    fi
+   else
+    logit $logf $source fetching or filtering failed
    fi
 # re-read polling interval
    polling=`configread $SOURCECONFIG POLLING` || polling=$MAXPOLLING
   fi
-# calculate minimal future polling time
-  if test $minpoll -lt $polling
+# calculate future minimal polling time
+  if test $minpoll -gt $polling
   then minpoll=$polling
   fi
 # save current status
   cat <<EOT >$SOURCESTATUS
 INDEX		$index
 LASTHASH	$lasthash
-LASTPOLL	$now
+LASTPOLL	$lastpoll
 EOT
  else logit $logf $source no configfile found, ignoring
  fi
@@ -92,4 +112,5 @@ done
 
 # save closest next polling time for controller
 echo NEXTPOLL `expr $starttime + $minpoll` > $reportfile
-rm -f $tmpf
+
+rm -f $tmpf1 $tmpf2

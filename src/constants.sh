@@ -36,15 +36,16 @@ logfile () {
  local lfile
  lfile=$LOGDIR/$1-`date +%W`.log
  echo "# $lfile  `date '+%c, week %W'`" >> $lfile
+ echo $lfile
 }
-# logging to file=arg1 and to output with identification=arg2
+# logging to file=arg1 and to stderr with identification=arg2
 logit () {
  local fn id
  fn=$1
  id=$2
  shift 2
  echo `date +%w%H%M` $id : $@ >> $fn
- echo : $id : $@
+ echo : $id : $@ >&2
 }
 
 # directory for text sources
@@ -61,7 +62,8 @@ CHANNELSTATUS=status.dat
 SOURCESTATUS=status.dat
 
 # initial values for source status file
-SOURCEINDEXSTART=100
+MININDEX=100
+MAXINDEX=99999
 
 # function to read config value by name
 # arguments: configfile name [separators]
@@ -90,3 +92,9 @@ nowsec () {
  date +%s
 }
 
+# function for hashing source texts
+hashfunction () {
+ cksum $1 | { read cfc _
+ echo $cfc
+ }
+}

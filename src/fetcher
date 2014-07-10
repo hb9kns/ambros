@@ -15,7 +15,7 @@ gen=-1
 
 # temporary and log file
 tmpf=$TMPDIR/fetcher-$proto-$$.tmp
-logf=`logfile fetcher`
+logf=`logfile fetcher-$proto`
 
 # timeout for total script is 3 times that for fetch operation
 timeout=`expr $FETCHTIMEOUT '*' 3`
@@ -45,8 +45,8 @@ rss)
 esac
 
 # line beginning with '---' is separator for configread function
-echo GENESIS $gen
-echo SOURCE $proto://$src
+echo "GENESIS	$gen"
+echo "SOURCE	$proto://$src"
 echo '--- ::::::::: ---'
 echo
 if test $gen -gt 0

@@ -17,16 +17,17 @@ fi
 owd=`pwd`
 cd `dirname $0`
 SCRIPTDIR=`pwd`
-echo SCRIPTDIR: $SCRIPTDIR
+echo SCRIPTDIR: $SCRIPTDIR >&2
 cd "$owd"
 cd `dirname $1`
 ROOTDIR=`pwd`
-echo ROOTDIR: $ROOTDIR
+echo ROOTDIR: $ROOTDIR >&2
 AMBROSCONFIG=`basename $1`
 
 cd $SCRIPTDIR || { echo "cannot access scripts in $SCRIPTDIR" ; exit 3 ; }
 # read global settings
 . ./constants.sh
+logf=`logfile ambros`
 # (re)generate morse code table
 cd morse && ./chargen.sh
 
@@ -34,23 +35,22 @@ cd morse && ./chargen.sh
 mkdir $TMPDIR 2>/dev/null
 if test ! -d $TMPDIR
 then
- echo cannot create temporary directory $TMPDIR - aborting!
+ logit $logf init "cannot create temporary directory $TMPDIR - aborting!"
  exit 3
 fi
-echo : tempdir $TMPDIR
+logit $logf init tempdir $TMPDIR
 
 if test ! -d "$ROOTDIR" -o ! -x "$ROOTDIR" -o ! -r "$ROOTDIR" -o ! -w "$ROOTDIR"
-then echo "base directory ($ROOTDIR) is not usable, aborting!"
-exit 2
+then
+ logit $logf init "base directory ($ROOTDIR) is not usable - aborting!"
+ exit 2
 fi
-
-echo
 
 # get channel list
 cd "$ROOTDIR"
-echo working in base directory $ROOTDIR
+logit $logf init working in base directory $ROOTDIR
 lchannels=`configread $AMBROSCONFIG CHANNELS '.,:;/'`
-echo listed channels: $lchannels
+logit $logf channels list: $lchannels
 
 # collect channel directory names
 unset channels
@@ -58,49 +58,44 @@ for ch in $lchannels
 do
 if test -d $ch -a -x $ch -a -r $ch -a -w $ch
 then channels="$ch $channels"
-else echo "channel $ch is not read/write/accessible directory, ignoring!"
+else
+ logit $logf channels "$ch is not read/write/accessible directory, ignoring!"
 fi
 done
 
-echo
-
 GLOBALSPEED=`configread $AMBROSCONFIG WPM`
 GLOBALSPEED=${GLOBALSPEED:-12}
-echo global speed $GLOBALSPEED Words/min
+logit $logf init "global speed $GLOBALSPEED Words/min"
 
 cd "$ROOTDIR"
 if test ! -d "$SOURCEDIR" -o ! -x "$SOURCEDIR" -o ! -r "$SOURCEDIR" -o ! -w "$SOURCEDIR"
-then echo "source directory ($ROOTDIR/$SOURCEDIR) is unusable, aborting!"
-exit 2
+then
+ logit $logf init "source directory ($ROOTDIR/$SOURCEDIR) is unusable - aborting!"
+ exit 2
 fi
 
 # handler for aborting
 finish () {
- echo
- echo received abort signal: stopping all subprocesses
+ logit $logf finish "received abort signal, stopping all subprocesses"
 # if no PID is set, use 1 (init) as a dummy argument
  /bin/kill -TERM ${pidassembler:-1} $pidchannelchief
- echo and ending main control loop
- date +"at %c"
+ logit $logf finish "signalling main control loop"
  AMBROSABORT=1
 }
 AMBROSABORT=0
  
 trap finish INT TERM STOP
 
-echo entering main control loop with PID $$
+logit $logf init "entering main control loop, PID $$"
 
 tmpf=$TMPDIR/ambros$$.tmp
 
 # for communication with extractor
 extractorfile=$TMPDIR/$EXTRACTORFILE
-echo : extractor comm file $extractorfile
 
 while test $AMBROSABORT -eq 0
-do : # main control loop
-echo
-echo passing main control loop
-date +"at %c"
+do
+logit $logf mainloop passing
 
 # collect source names
 for ch in $channels
@@ -108,7 +103,6 @@ do
 csources=`configread "$ch/$CHANNELCONFIG" SOURCES '.,:;/'`
 lsources="$csources $lsources"
 done
-#echo listed sources: $lsources
 cd $ROOTDIR/$SOURCEDIR
 {
  for ls in $lsources
@@ -123,21 +117,24 @@ cd $ROOTDIR/$SOURCEDIR
  done
 } > $tmpf
 sources=`cat $tmpf`
-echo currently valid sources: $sources
+logit $logf mainloop "valid sources: $sources"
 
 # fetch and process sources ('_' for channel prefix, i.e 'all' for sources)
 SCRIPTDIR="$SCRIPTDIR" $SCRIPTDIR/extractor _ $extractorfile $sources
-cat $extractorfile
 
 # start&control `assembler`
 # start&control `channelchief`
 
-AMBROSABORT=99
+echo
+echo enter q to abort:
+read ans
+if test "$ans" = "q"
+then AMBROSABORT=99
+fi
 
 done
 
 # remove all temporary stuff
 #rm -rf $TMPDIR
 
-echo
-echo finished.
+logit $logf ambros finished.
