@@ -31,6 +31,26 @@ logf=`logfile ambros`
 # (re)generate morse code table
 cd morse && ./chargen.sh
 
+# temporary file
+tmpf=$TMPDIR/ambros$$.tmp
+# database for running daemons
+daemons=$TMPDIR/daemons$$.tmp
+# function for starting and logging daemons
+# $logf and $daemon are global variables
+# arg1=action, arg2=channel, arg3=type, arg4=pid
+# (arg4 only if action other than start)
+dodaemon () {
+ if test "$1" = "start"
+ then
+  SCRIPTDIR=$SCRIPTDIR $SCRIPTDIR/$3 $2 &
+  dpid=$!
+  logit $logf daemon:$2 "starting $3 with PID $dpid"
+ else
+  dpid=$4
+ fi
+ echo $2 $3 $dpid >>$daemons
+}
+
 # create temporary directory, ignore error if already existing
 mkdir $TMPDIR 2>/dev/null
 if test ! -d $TMPDIR
@@ -57,20 +77,25 @@ unset channels
 for ch in $lchannels
 do
 if test -d $ch -a -x $ch -a -r $ch -a -w $ch
-then channels="$ch $channels"
+then
+ if test -r $ch/$CHANNELCONFIG
+ then channels="$ch $channels"
+ else
+  logit $logf channels "configuration file $ch/$CHANNELCONFIG is not readable, ignoring!"
+ fi
 else
  logit $logf channels "$ch is not read/write/accessible directory, ignoring!"
 fi
 done
 
-GLOBALSPEED=`configread $AMBROSCONFIG WPM`
-GLOBALSPEED=${GLOBALSPEED:-12}
-logit $logf init "global speed $GLOBALSPEED Words/min"
+SPEED=`configread $AMBROSCONFIG WPM`
+SPEED=${GLOBALSPEED:-12}
+logit $logf init "global speed $SPEED Words/min"
 
 cd "$ROOTDIR"
 if test ! -d "$SOURCEDIR" -o ! -x "$SOURCEDIR" -o ! -r "$SOURCEDIR" -o ! -w "$SOURCEDIR"
 then
- logit $logf init "source directory ($ROOTDIR/$SOURCEDIR) is unusable - aborting!"
+ logit $logf init "source directory $ROOTDIR/$SOURCEDIR unusable - aborting!"
  exit 2
 fi
 
@@ -86,15 +111,23 @@ AMBROSABORT=0
  
 trap finish INT TERM STOP
 
-logit $logf init "entering main control loop, PID $$"
+# for each channel, start a transmitter and editor daemon
+# and log their PID
+for ch in $channels
+do
+ cd $ch
+ dodaemon start $ch sender
+ dodaemon start $ch schneider
+ cd "$ROOTDIR"
+done
 
-tmpf=$TMPDIR/ambros$$.tmp
+logit $logf init "entering main control loop, PID $$"
 
 # for communication with extractor
 extractorfile=$TMPDIR/$EXTRACTORFILE
 
 while test $AMBROSABORT -eq 0
-do
+do # main loop
 logit $logf mainloop passing
 
 # collect source names
@@ -122,9 +155,6 @@ logit $logf mainloop "valid sources: $sources"
 # fetch and process sources ('_' for channel prefix, i.e 'all' for sources)
 SCRIPTDIR="$SCRIPTDIR" $SCRIPTDIR/extractor _ $extractorfile $sources
 
-# start&control `assembler`
-# start&control `channelchief`
-
 echo
 echo enter q to abort:
 read ans
@@ -132,7 +162,36 @@ if test "$ans" = "q"
 then AMBROSABORT=99
 fi
 
+# watchdog for daemons
+cat $daemons >$tmpf
+date "+# watchdog %c" >$daemons
+cat $tmpf | { while read ch type pid
+do
+# ignore comments
+ if test "$ch" != "#"
+ then
+  if ps|grep "^ *$pid .*$type" >/dev/null 2>&1
+  then action=log
+  else action=start
+   logit $logf daemon "$type for $ch died"
+  fi
+   dodaemon $action $ch $type $pid
+ fi
 done
+}
+
+done # main loop
+
+cat $daemons | { while read ch type pid
+do
+# ignore comments
+ if test "$ch" != "#"
+ then
+  logit $logf daemon killing PID $pid
+  kill -$DAEMONTERMINATE $pid
+ fi
+done
+}
 
 # remove all temporary stuff
 #rm -rf $TMPDIR

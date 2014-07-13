@@ -79,14 +79,14 @@ _ok, shellscript_ `src/morse/sniptime`
 
 ### Planer
 
-_shellscript_ `src/ambros`
+_ok, shellscript_ `src/ambros`
 
 - startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
 - ruft Quellen regelmaessig ab mittels `Bereiter`
 
 ### Bereiter
 
-_shellscript_ `scr/extractor`
+_ok, shellscript_ `scr/extractor`
 
 - gestartet von `Planer`
 - holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit PBL fuer Quellenangaben u Prioritaeten)
@@ -100,7 +100,7 @@ _ok, shellscript_ `src/fetcher`
 
 ### Schneider
 
-_shellscript_ `src/assembler`
+_shellscript_ `src/channeleditor`
 
 - erstellt `SendeTexte` (formatierte Texte) via Filesystem fuer `Sendechef`, basierend auf aktuellem Status und _Durchsatzoptimierung_
 - erzeugt Filenamen aufsteigend je Kanalprefix
@@ -108,7 +108,7 @@ _shellscript_ `src/assembler`
 
 ### Sendechef
 
-_shellscript_ `scr/channelchief`
+_shellscript_ `scr/channeltransmitter`
 
 - erzeugt Textstrom fuer `Sender`, meldet Filestatus zurueck an `Schneider`
 - unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei mit _Index_ `10..19` im Namen, falls kleiner als aktuell laufendes XXX)
