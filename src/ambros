@@ -107,10 +107,7 @@ fi
 
 # handler for aborting
 finish () {
- logit $logf finish "received abort signal, stopping all subprocesses"
-# if no PID is set, use 1 (init) as a dummy argument
- /bin/kill -TERM ${pidassembler:-1} $pidchannelchief
- logit $logf finish "signalling main control loop"
+ logit $logf finish received abort signal
  AMBROSABORT=1
 }
 AMBROSABORT=0
@@ -161,12 +158,12 @@ logit $logf mainloop "valid sources: $sources"
 # fetch and process sources ('_' for channel prefix, i.e 'all' for sources)
 $SCRIPTDIR/extractor _ $extractorfile $sources
 
-echo
-echo enter q to abort:
-read ans
-if test "$ans" = "q"
-then AMBROSABORT=99
-fi
+#echo
+#echo enter q to abort:
+#read ans
+#if test "$ans" = "q"
+#then AMBROSABORT=99
+#fi
 
 # watchdog for daemons
 cat $daemons >$tmpf
@@ -185,6 +182,20 @@ do
  fi
 done
 }
+
+# wait for extractor-defined next poll time, in steps of 10sec
+delta=`date +%s`
+nextpoll=`configread $extractorfile NEXTPOLL` || nextpoll=$delta
+nextpoll=`expr $nextpoll - 10`
+delta=`expr $nextpoll - $delta`
+logit $logf wait about $delta sec until next polling
+while test `date +%s` -lt $nextpoll
+do
+ sleep 10
+ if test $AMBROSABORT -ne 0
+ then nextpoll=0
+ fi
+done
 
 done # main loop
 

@@ -11,6 +11,7 @@
 tmpf1=$TMPDIR/extractor1$$.tmp
 tmpf2=$TMPDIR/extractor2$$.tmp
 
+# for calculation of minimal expected polling time, from all sources
 minpoll=${MAXPOLLING:-999999}
 starttime=`nowsec`
 
@@ -49,9 +50,9 @@ do
   polling=`configread $SOURCECONFIG POLLING` || polling=$MAXPOLLING
 #echo : lastpoll $lastpoll : pollinterval $polling : now $now
 # calculate time of next polling
-  polling=`expr $lastpoll + $polling - $now`
+  nextpoll=`expr $lastpoll + $polling - $now`
 # poll if passed
-  if test $polling -le 0
+  if test $nextpoll -le 0
   then
    logit $logf $source needs polling
 # source descriptor (url, file, etc)
@@ -69,9 +70,11 @@ do
     newhash=`hashfunction $tmpf2`
     if test $lasthash != $newhash
     then
+# for duration, ignore leading headers from fetcher
      duration=`sed -e '1,/^---/d' $tmpf2 | $SCRIPTDIR/morse/sniptime $SPEED`
+# generate file name and headers for clean text
      stname="$prefix$prio$index$suffix"
-# PBL
+# no separator line at end needed, as fetcher takes care of it
      cat <<EOH >$stname
 IDENTIFICATION	$desc
 PRIORITY	$prio
@@ -80,7 +83,9 @@ DECAY	$decay
 SPEED	$SPEED
 DURATION	$duration
 EOH
+# add fetched text (contains separator line)
      cat $tmpf2 >>$stname
+# increase and if necessary roll over index
      index=`expr $index + 1`
      if test $index -gt $maxindex
      then index=$minindex
@@ -94,8 +99,6 @@ EOH
    else
     logit $logf $source fetching or filtering failed
    fi
-# re-read polling interval
-   polling=`configread $SOURCECONFIG POLLING` || polling=$MAXPOLLING
   fi
 # calculate future minimal polling time
   if test $minpoll -gt $polling
