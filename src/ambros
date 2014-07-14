@@ -18,6 +18,7 @@ owd=`pwd`
 cd `dirname $0`
 SCRIPTDIR=`pwd`
 echo SCRIPTDIR: $SCRIPTDIR >&2
+export SCRIPTDIR
 cd "$owd"
 cd `dirname $1`
 ROOTDIR=`pwd`
@@ -42,7 +43,7 @@ daemons=$TMPDIR/daemons$$.tmp
 dodaemon () {
  if test "$1" = "start"
  then
-  SCRIPTDIR=$SCRIPTDIR $SCRIPTDIR/$3 $2 &
+  $SCRIPTDIR/$3 $2 &
   dpid=$!
   logit $logf daemon:$2 "starting $3 with PID $dpid"
  else
@@ -89,8 +90,13 @@ fi
 done
 
 SPEED=`configread $AMBROSCONFIG WPM`
-SPEED=${GLOBALSPEED:-12}
-logit $logf init "global speed $SPEED Words/min"
+SPEED=${SPEED:-$GLOBALSPEED}
+if test "$SPEED" != ""
+then
+ logit $logf init "Morse speed $SPEED Words/min"
+ export SPEED
+else logit $logf init "WARNING: Morse speed undefined!"
+fi
 
 cd "$ROOTDIR"
 if test ! -d "$SOURCEDIR" -o ! -x "$SOURCEDIR" -o ! -r "$SOURCEDIR" -o ! -w "$SOURCEDIR"
@@ -153,7 +159,7 @@ sources=`cat $tmpf`
 logit $logf mainloop "valid sources: $sources"
 
 # fetch and process sources ('_' for channel prefix, i.e 'all' for sources)
-SCRIPTDIR="$SCRIPTDIR" $SCRIPTDIR/extractor _ $extractorfile $sources
+$SCRIPTDIR/extractor _ $extractorfile $sources
 
 echo
 echo enter q to abort:

@@ -69,6 +69,7 @@ do
     newhash=`hashfunction $tmpf2`
     if test $lasthash != $newhash
     then
+     duration=`sed -e '1,/^---/d' $tmpf2 | $SCRIPTDIR/morse/sniptime $SPEED`
      stname="$prefix$prio$index$suffix"
 # PBL
      cat <<EOH >$stname
@@ -76,6 +77,8 @@ IDENTIFICATION	$desc
 PRIORITY	$prio
 INDEX	$index
 DECAY	$decay
+SPEED	$SPEED
+DURATION	$duration
 EOH
      cat $tmpf2 >>$stname
      index=`expr $index + 1`

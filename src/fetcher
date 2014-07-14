@@ -47,7 +47,7 @@ esac
 # line beginning with '---' is separator for configread function
 echo "GENESIS	$gen"
 echo "SOURCE	$proto://$src"
-echo '--- ::::::::: ---'
+echo '---'
 echo
 if test $gen -gt 0
 then

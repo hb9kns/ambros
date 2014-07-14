@@ -155,9 +155,13 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 - `GENESIS` Erstellungszeit [sec]
 - `SOURCE` Quelle (URL)
 - `IDENTIFICATION` Kurzbezeichnung (Wort, optional da durch Quelle gegeben)
+- `DURATION` Sendedauer [sec] bei angegebener Geschwindigkeit in WPM
+- `WPM` Speed [WpM]
 
 `PRIORITY,INDEX` sind identisch zu entsprechenden Teilen des Dateinamens
 und deshalb optional; bei Widerspruechen haben sie jedoch Vorrang.
+`DURATION,WPM` sind optional, sollten aber vorhanden sein, damit Planung
+rascher berechnet werden kann.
 
 #### Beispiel
 
