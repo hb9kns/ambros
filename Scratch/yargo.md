@@ -71,8 +71,9 @@ Verzeichnisstruktur:
 _ok, shellscript_ `src/morse/sniptime`
 
 - Eingabetext auf stdin
-- wenn `Laenge>0`: stdout erhaelt auf Laenge[sec] (gemaess WpM) abgemessenen Text (stdin abgeschnitten)
-- sonst erhaelt stdout Laenge[sec] (gemaess WpM) des Textes von stdin
+- wenn `Laenge>0`: stdout erhaelt in Worte getrennten Text (stdin),
+  wobei nach Laenge[sec] (gemaess WpM) Leerzeile eingefuegt wird
+- sonst erhaelt stdout Textlaenge[sec] (gemaess WpM) von stdin
 - Zeichenlaenge einmalig aus Textdatei ermittelt:
 
     a .-
@@ -85,38 +86,46 @@ _ok, shellscript_ `src/ambros`
 
 - startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
 - ruft Quellen regelmaessig ab mittels `Bereiter`
+- Argument: Konfigurationsdatei im Kanalverzeichnis
 
 ### Bereiter
 
 _ok, shellscript_ `scr/extractor`
 
 - gestartet von `Kontroller`
-- holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit PBL fuer Quellenangaben u Prioritaeten)
+- holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten
+  in `SauberTexte` um (mit PBL fuer Quellenangaben u Prioritaeten)
+- Argumente: Prefix, Reportdatei (feedback), Quellenverzeichnisliste
 
 ### Sauger
 
 _ok, shellscript_ `src/fetcher`
 
 - gestartet von `Bereiter`
-- holt Rohdaten von Net/Mail/File mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile
+- holt Rohdaten von Net/Mail/File mit Quellenangabe auf erster Zeile und
+  Erstellungszeit auf zweiter Zeile
+- Argument: PROTO://SOURCE
 
 ### Planer
 
 _shellscript_ `src/planner`
 
-- erstellt `SendeTexte` (formatierte Texte) via Filesystem fuer `Sendechef`, basierend auf aktuellem Status und _Durchsatzoptimierung_
+- erstellt `SendeTexte` (formatierte Texte) via Filesystem fuer `Sendechef`,
+  basierend auf aktuellem Status und _Durchsatzoptimierung_
 - erzeugt Filenamen aufsteigend je Kanalprefix
 - erzeugt Sendeplan zur Uebertragung zu vordefinierten Zeiten
-- je Kanalprefix nur eine Instanz
+- eine Instanz je Kanalprefix
 
 ### Sendechef
 
 _shellscript_ `scr/sender`
 
 - erzeugt Textstrom fuer `Morser`, meldet Filestatus zurueck an `Planer`
-- unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei mit _Index_ `10..19` im Namen, falls kleiner als aktuell laufendes XXX)
-- nimmt je Kanalprefix ersten `SendeText`, verschiebt ihn nach erfolgreicher Uebergabe an `Morser` in Papierkorb/Log
-- je Kanalprefix nur eine Instanz
+- unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei
+  mit _Index_ `10..19` im Namen, falls kleiner als aktuell laufendes XXX)
+- nimmt je Kanalprefix ersten `SendeText`, verschiebt ihn nach erfolgreicher
+  Uebergabe an `Morser` in Papierkorb/Log
+- eine Instanz je Kanalprefix
 
 ### Morser
 
