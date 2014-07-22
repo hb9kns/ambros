@@ -18,12 +18,12 @@ owd=`pwd`
 cd `dirname $0`
 SCRIPTDIR=`pwd`
 echo SCRIPTDIR: $SCRIPTDIR >&2
-export SCRIPTDIR
 cd "$owd"
 cd `dirname $1`
 ROOTDIR=`pwd`
 echo ROOTDIR: $ROOTDIR >&2
 AMBROSCONFIG=`basename $1`
+export ROOTDIR SCRIPTDIR
 
 cd $SCRIPTDIR || { echo "cannot access scripts in $SCRIPTDIR" ; exit 3 ; }
 # read global settings
@@ -105,6 +105,7 @@ then
  exit 2
 fi
 
+
 # handler for aborting
 finish () {
  logit $logf finish received abort signal
@@ -114,13 +115,13 @@ AMBROSABORT=0
  
 trap finish INT TERM STOP
 
-# for each channel, start a transmitter and editor daemon
+# for each channel, start a transmitter and planner daemon
 # and log their PID
 for ch in $channels
 do
  cd $ch
  dodaemon start $ch sender
- dodaemon start $ch schneider
+ dodaemon start $ch planner
  cd "$ROOTDIR"
 done
 

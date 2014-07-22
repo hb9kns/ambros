@@ -1,4 +1,4 @@
-# yargo scratch file
+# yargo scratch file for AMBroS
 
 ## Konfiguration
 
@@ -30,6 +30,8 @@ Verzeichnisstruktur:
 
 - SLICETIME: Zeitscheibenlaenge
 - SLICEDEPTH: Anzahl vorauszuberechnender Zeitscheiben
+- TOCTIME: maximale Laenge [sec] des Inhaltsverzeichnisses
+- TOCPERIOD: Sendeperiode [sec] des Inhaltsverzeichnisses
 - POSTPROCESSOR: Skript zum Postprozessing: Umlaute, verbotene Woerter, ...
 - WPM: Tastgeschwindigkeit (kann durch Rezept oder Prio veraendert werden)
 - SOURCES: Liste von IDENTIFICATIONs (Quellen), welche gesendet werden sollen
@@ -48,9 +50,9 @@ Verzeichnisstruktur:
 - PRIORITY: Prioritaet P: 10=max, 99=min (kann durch Rezept veraendert werden)
 - SOURCE: Quelle (URL, Datei, ...); bei mehreren Quellen erste erfolgreich
   abgerufene, IDENTIFICATION wird dann mit Sub-ID (1,2,...) versehen
-- POLLING: Abrufintervall oder -zeit (crontab?)
+- POLLING: Abrufintervall oder -zeit
 - RECIPE: Skript zur Verarbeitung
-- INTERVAL: Sendeintervall (in sec, 0= sofort sobald neue Version)
+- PERIOD: Sendeperiode (in sec, 0= sofort sobald neue Version)
 - MININDEX: minimaler INDEX-Wert (zB 100)
 - MAXINDEX: maximaler INDEX-Wert (zB 999, danach wieder MININDEX)
 - ERRORRECIPIENT: Fehlermelde-Methode: e-mail, Sendung, Log; optional
@@ -77,7 +79,7 @@ _ok, shellscript_ `src/morse/sniptime`
     b -...
     ...
 
-### Planer
+### Kontroller (zentrales Skript)
 
 _ok, shellscript_ `src/ambros`
 
@@ -88,7 +90,7 @@ _ok, shellscript_ `src/ambros`
 
 _ok, shellscript_ `scr/extractor`
 
-- gestartet von `Planer`
+- gestartet von `Kontroller`
 - holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten in `SauberTexte` um (mit PBL fuer Quellenangaben u Prioritaeten)
 
 ### Sauger
@@ -98,27 +100,44 @@ _ok, shellscript_ `src/fetcher`
 - gestartet von `Bereiter`
 - holt Rohdaten von Net/Mail/File mit Quellenangabe auf erster Zeile, Erstellungszeit auf zweiter Zeile
 
-### Schneider
+### Planer
 
-_shellscript_ `src/channeleditor`
+_shellscript_ `src/planner`
 
 - erstellt `SendeTexte` (formatierte Texte) via Filesystem fuer `Sendechef`, basierend auf aktuellem Status und _Durchsatzoptimierung_
 - erzeugt Filenamen aufsteigend je Kanalprefix
+- erzeugt Sendeplan zur Uebertragung zu vordefinierten Zeiten
 - je Kanalprefix nur eine Instanz
 
 ### Sendechef
 
-_shellscript_ `scr/channeltransmitter`
+_shellscript_ `scr/sender`
 
-- erzeugt Textstrom fuer `Sender`, meldet Filestatus zurueck an `Schneider`
+- erzeugt Textstrom fuer `Morser`, meldet Filestatus zurueck an `Planer`
 - unterbricht allenfalls bei Eintreffen von XXX (via Filesystem ueber Datei mit _Index_ `10..19` im Namen, falls kleiner als aktuell laufendes XXX)
-- nimmt je Kanalprefix ersten `SendeText`, verschiebt ihn nach erfolgreicher Uebergabe an `Sender` in Papierkorb/Log
+- nimmt je Kanalprefix ersten `SendeText`, verschiebt ihn nach erfolgreicher Uebergabe an `Morser` in Papierkorb/Log
 - je Kanalprefix nur eine Instanz
 
-### Sender
+### Morser
 
 - erzeugt A1A-Signal aus Textstrom-Zeichen
 - je Kanalprefix nur eine Instanz
+
+## Signale
+
+### HUP (1)
+
+- Abbruchsignal
+- von ambros.sh
+- fuer alle Daemons und Subroutinen
+
+### INT,TERM,STOP (2,15,19)
+
+- Abbruchsignal
+- von extern
+- fuer ambros.sh
+
+### 
 
 ## Prioritaeten
 

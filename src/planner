@@ -1,0 +1,25 @@
+#!/bin/sh
+# planner:
+# assemble transmission texts from clean texts
+# arg1=channel
+# environment variables ROOTDIR and SCRIPTDIR must be defined by caller,
+# and script must be called from channel directory as working directory
+
+. $SCRIPTDIR/constants.sh
+
+# save channel for reference - but we should already be in that directory
+chan=$1
+
+logf=`logfile planner-$chan`
+
+# check if config file present, if not, sleep to reduce load
+if ! -r $CHANNELCONFIG
+then
+ logit $logf FAIL missing config file $CHANNELCONFIG
+ sleep 10
+ return 1
+fi
+
+while true
+do sleep 3
+done

@@ -65,8 +65,10 @@ SOURCESTATUS=status.dat
 MININDEX=100
 MAXINDEX=99999
 
-# signal number to terminate daemons (argument for kill)
-DAEMONTERMINATE=15
+# signal to terminate daemons (argument for kill)
+DAEMONTERMINATE=HUP
+# signal to make daemons re-read files for urgent messages
+DAEMONXXX=INT
 
 # function to read config value by name
 # arguments: configfile name [separators]

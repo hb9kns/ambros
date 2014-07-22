@@ -1,6 +1,6 @@
 #!/bin/sh
 # sniptime:
-# cut input text to given duration,
+# cut input text to given duration (empty line as separator),
 # or calculate total duration (if duration is missing or 0)
 #
 # args: speed/WpM, [duration/sec]
@@ -12,8 +12,8 @@ chartab=`dirname $0`/chartab.txt
 # speedbase: VVVVV=64, CODEX=60, PARIS=50
 speedbase=${SPEEDBASE:-50}
 
-# calculate duration/ditunits of characters 
-# (one character per argument)
+# calculate duration/ditunits of characters, which must be given as
+# separate arguments
 wordduration() {
 local wd cd
 wd=0
@@ -50,28 +50,37 @@ duration=${2:-0}
 duration=`expr $duration '*' $ditspeed / 60`
 #echo : $duration ditunits
 
-# separate words into lines, then characters by space, and remove empty lines
+# flag for dumping of remaining text
+dump=0
+# separate words into lines, and remove empty lines
 sed -e 's/[	_ ][	_ ]*/\
-/g;s/\(.\)/ \1/g;/^[	_ ]*$/d' | {
+/g;/^[	_ ]*$/d' | {
  total=0
  while read word
+ do
+ if test $dump -eq 0
+ then
+# separate characters with spaces, making each into one argument
+  sword="`echo $word|sed -e 's/\(.\)/ \1/g'`"
 # calculate duration of word including inter-word pause (_)
- do total="$total + `wordduration $word _`"
-#  echo :: total = $total >&2
+  total="$total + `wordduration $sword _`"
+# echo :: total = $total >&2
   total=`expr $total`
-# duration>0, then echo input text until duration reached
-  if test $duration -gt 0
-  then if test $duration -lt $total
-   then break
-# again remove separating spaces from word
-   else echo "$word" | sed -e 's/ //g'
-   fi
+# 0<duration<total, then add empty separator line and dump remaining text
+  if test $duration -gt 0 -a $duration -lt $total
+  then
+   echo
+   dump=1
   fi
-#  echo :$word: >&2
+ fi
+# output word if not in measurement mode
+ if test $duration -gt 0
+ then echo "$word"
+ fi
  done
 # duration<=0, then report duration
  if test $duration -le 0
-# convert from ditunits back into seconds
+# convert from ditunits back into seconds and return duration
  then expr $total '*' 60 / $ditspeed
  fi
 }

@@ -1,4 +1,11 @@
 #!/bin/sh
+# sender:
+# poll available transmission texts and pass them on to transmission routine
+# arg1=channel
+# environment variables ROOTDIR and SCRIPTDIR must be defined by caller
+
+. $SCRIPTDIR/constants.sh
+
 while true
 do sleep 5
 done
