@@ -70,7 +70,7 @@ fi
 # get channel list
 cd "$ROOTDIR"
 logit $logf init working in base directory $ROOTDIR
-lchannels=`configread $AMBROSCONFIG CHANNELS '.,:;/'`
+lchannels=`configread $AMBROSCONFIG CHANNELS ',:;`
 logit $logf channels list: $lchannels
 
 # collect channel directory names
@@ -137,7 +137,7 @@ logit $logf mainloop passing
 # collect source names
 for ch in $channels
 do
-csources=`configread "$ch/$CHANNELCONFIG" SOURCES '.,:;/'`
+csources=`configread "$ch/$CHANNELCONFIG" SOURCES ',:;'`
 lsources="$csources $lsources"
 done
 cd $ROOTDIR/$SOURCEDIR

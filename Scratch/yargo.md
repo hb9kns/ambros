@@ -30,7 +30,7 @@ Verzeichnisstruktur:
 
 - SLICETIME: Zeitscheibenlaenge
 - SLICEDEPTH: Anzahl vorauszuberechnender Zeitscheiben
-- TOCTIME: maximale Laenge [sec] des Inhaltsverzeichnisses
+- TOCLENGTH: maximale Laenge [sec] des Inhaltsverzeichnisses
 - TOCPERIOD: Sendeperiode [sec] des Inhaltsverzeichnisses
 - POSTPROCESSOR: Skript zum Postprozessing: Umlaute, verbotene Woerter, ...
 - WPM: Tastgeschwindigkeit (kann durch Rezept oder Prio veraendert werden)
@@ -134,19 +134,23 @@ _shellscript_ `scr/sender`
 
 ## Signale
 
-### HUP (1)
+### HUP,STOP
 
 - Abbruchsignal
 - von ambros.sh
 - fuer alle Daemons und Subroutinen
 
-### INT,TERM,STOP (2,15,19)
+### INT,TERM,STOP
 
 - Abbruchsignal
 - von extern
 - fuer ambros.sh
 
-### 
+### USR1
+
+- Signal zum Neulesen der Konfiguration und Neustart
+- von ambros.sh
+- fuer alle Daemons und Subroutinen
 
 ## Prioritaeten
 

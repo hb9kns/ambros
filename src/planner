@@ -7,7 +7,7 @@
 
 . $SCRIPTDIR/constants.sh
 
-# save channel for reference - but we should already be in that directory
+# save channel name for reference - but we should already be in that directory
 chan=$1
 
 logf=`logfile planner-$chan`
@@ -20,6 +20,51 @@ then
  return 1
 fi
 
-while true
+# handler for restarting/reloading
+restart () {
+ logit $logf signal reloading configuration files and restarting
+ RESTARTPLANNER=1
+}
+# flag initially _set_ to force initializing during launch
+# will be reset after initialization routine
+RESTARTPLANNER=1
+trap restart USR1
+
+# handler for stopping
+finish () {
+ logit $logf signal finishing
+ ABORTPLANNER=1
+}
+ABORTPLANNER=0
+trap finish HUP INT STOP
+
+while test ABORTPLANNER -eq 0
 do sleep 3
+if test $RESTARTPLANNER -eq 1
+then
+ sources=`configread $CHANNELCONFIG SOURCES ',:;'`
+ logit $logf config sources: $sources"
+# last resource default: speed 10WpM
+ speed=`configread $CHANNELCONFIG WPM`
+ speed=${speed:-$SPEED}
+ speed=${speed:-10}
+ logit $logf config speed: $speed
+# last resource defaults: slicetime 10min, slicedepth 0
+ slicetime=`configread $CHANNELCONFIG SLICETIME`
+ slicetime=${slicetime:-600}
+ slicedepth=`configread $CHANNELCONFIG SLICEDEPTH`
+ slicedepth=${slicedepth:-0}
+ logit $logf config slice time: $slicetime , depth: $slicedepth
+# last resource default: no postprocessor, i.e `cat`
+ postprocessor=`configread $CHANNELCONFIG POSTPROCESSOR`
+ postprocessor=${postprocessor:-/bin/cat}
+ logit $logf config postprocessor: $postprocessor
+# last resource defaults: ToC length 2min, ToC retransmission period 30min
+ toclength=`configread $CHANNELCONFIG TOCLENGTH`
+ toclength=${toclength:-120}
+ tocperiod=`configread $CHANNELCONFIG TOCPERIOD`
+ tocperiod=${tocperiod:-1800}
+# do not restart until signal received again
+ RESTARTPLANNER=0
+fi
 done
