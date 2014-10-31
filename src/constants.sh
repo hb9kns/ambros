@@ -21,14 +21,19 @@ EXTRACTORFILE=extractor.dat
 if test ! -d "$TMPDIR" -o ! -w "$TMPDIR" -o ! -x "$TMPDIR" -o ! -r "$TMPDIR"
 then
 # if possible, use ramdisk (on Linux)
- if test -d /dev/shm
- then TMPDIR=/dev/shm/ambros
- else TMPDIR=/tmp/ambros
+ if test -d /run/shm
+ then TMPDIR=/run/shm
+ else TMPDIR=/tmp
  fi
+ TMPDIR=$TMPDIR/ambros
+ mkdir -p $TMPDIR || { echo cannot create tempdir $TMPDIR ; exit 4 ; }
 fi
-mkdir -p $TMPDIR || { echo cannot create tempdir $TMPDIR ; exit 4 ; }
 
-# could be part of temp dir, but may be independent (long-lasting)
+# used by daemons for status reports
+STATUSDIR=$TMPDIR/status
+mkdir -p $STATUSDIR || { echo cannot create statusdir $STATUSDIR ; exit 4 ; }
+
+# could be part of temp dir, but may be independent (longer lasting)
 LOGDIR=/tmp/ambros/log
 mkdir -p $LOGDIR || { echo cannot create logdir $LOGDIR ; exit 4 ; }
 # logfile generator, argument is log name specification
@@ -66,9 +71,11 @@ MININDEX=100
 MAXINDEX=99999
 
 # signal to terminate daemons (argument for kill)
-DAEMONTERMINATE=HUP
+SIGDAEMONTERMINATE=HUP
+# signal to make daemons restart initialization
+SIGDAEMONRESTART=INT
 # signal to make daemons re-read files for urgent messages
-DAEMONXXX=INT
+SIGDAEMONXXX=INT
 
 # function to read config value by name
 # arguments: configfile name [separators]

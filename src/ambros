@@ -41,6 +41,9 @@ daemons=$TMPDIR/daemons$$.tmp
 # arg1=action, arg2=channel, arg3=type, arg4=pid
 # (arg4 only if action other than start)
 dodaemon () {
+ if test "$1" = "none"
+ then return 0
+ fi
  if test "$1" = "start"
  then
   $SCRIPTDIR/$3 $2 &
@@ -176,8 +179,17 @@ do
  then
   if ps|grep "^ *$pid .*$type" >/dev/null 2>&1
   then action=log
-  else action=start
-   logit $logf daemon "$type for $ch died"
+  else
+   daemstat=`configread $STATUSDIR/$type-$ch STATUS`
+   if test $daemstat -eq FAIL
+   then
+    logit $logf daemon "$type for $ch failed permanently:"
+    sed -e 's/^/### /' $STATUSDIR/$type-$ch >>$logf
+    action=none
+   else
+    logit $logf daemon "$type for $ch died, restarting"
+    action=start
+   fi
   fi
    dodaemon $action $ch $type $pid
  fi
