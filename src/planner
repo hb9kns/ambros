@@ -10,12 +10,26 @@
 # save channel name for reference - but we should already be in that directory
 chan=$1
 
-logf=`logfile planner-$chan`
+myself=planner-$chan
+logf=`logfile $myself`
+statf=$STATUSDIR/$myself
+
+statrep $statf STATUS initializing
 
 # check if config file present, if not, sleep to reduce load
 if ! -r $CHANNELCONFIG
 then
  logit $logf FAIL missing config file $CHANNELCONFIG
+ statrep $statf STATUS FAIL missing config file $CHANNELCONFIG
+ sleep 10
+ return 1
+fi
+
+# check if prefix defined -- we cannot define it here by ourselves!
+if ! prefix=`configread $CHANNELCONFIG PREFIX`
+then
+ logit $logf FAIL missing PREFIX definition in $CHANNELCONFIG
+ statrep $statf STATUS FAIL missing PREFIX definition in $CHANNELCONFIG
  sleep 10
  return 1
 fi
@@ -28,7 +42,7 @@ restart () {
 # flag initially _set_ to force initializing during launch
 # will be reset after initialization routine
 RESTARTPLANNER=1
-trap restart USR1
+trap restart $SIGDAEMONRESTART
 
 # handler for stopping
 finish () {
@@ -36,35 +50,26 @@ finish () {
  ABORTPLANNER=1
 }
 ABORTPLANNER=0
-trap finish HUP INT STOP
+trap finish $SIGDAEMONTERMINATE
 
 while test ABORTPLANNER -eq 0
+# reduce load in case of severe bugs/problems
 do sleep 3
 if test $RESTARTPLANNER -eq 1
 then
  sources=`configread $CHANNELCONFIG SOURCES ',:;'`
  logit $logf config sources: $sources"
-# last resource default: speed 10WpM
- speed=`configread $CHANNELCONFIG WPM`
- speed=${speed:-$SPEED}
- speed=${speed:-10}
- logit $logf config speed: $speed
-# last resource defaults: slicetime 10min, slicedepth 0
- slicetime=`configread $CHANNELCONFIG SLICETIME`
- slicetime=${slicetime:-600}
- slicedepth=`configread $CHANNELCONFIG SLICEDEPTH`
- slicedepth=${slicedepth:-0}
- logit $logf config slice time: $slicetime , depth: $slicedepth
 # last resource default: no postprocessor, i.e `cat`
  postprocessor=`configread $CHANNELCONFIG POSTPROCESSOR`
  postprocessor=${postprocessor:-/bin/cat}
  logit $logf config postprocessor: $postprocessor
-# last resource defaults: ToC length 2min, ToC retransmission period 30min
+# last resource defaults: ToC length 2min, ToC retransmission period 3 slices
  toclength=`configread $CHANNELCONFIG TOCLENGTH`
  toclength=${toclength:-120}
- tocperiod=`configread $CHANNELCONFIG TOCPERIOD`
- tocperiod=${tocperiod:-1800}
+ tocslices=`configread $CHANNELCONFIG TOCSLICES`
+ tocslices=${tocslices:-3}
 # do not restart until signal received again
  RESTARTPLANNER=0
 fi
+
 done

@@ -31,7 +31,7 @@ Verzeichnisstruktur:
 - SLICETIME: Zeitscheibenlaenge
 - SLICEDEPTH: Anzahl vorauszuberechnender Zeitscheiben
 - TOCLENGTH: maximale Laenge [sec] des Inhaltsverzeichnisses
-- TOCPERIOD: Sendeperiode [sec] des Inhaltsverzeichnisses
+- TOCSLICES: Anzahl Zeitscheiben zwischen Inhaltsverzeichnis-Sendungen
 - POSTPROCESSOR: Skript zum Postprozessing: Umlaute, verbotene Woerter, ...
 - WPM: Tastgeschwindigkeit (kann durch Rezept oder Prio veraendert werden)
 - SOURCES: Liste von IDENTIFICATIONs (Quellen), welche gesendet werden sollen
@@ -90,7 +90,7 @@ _ok, shellscript_ `src/ambros`
 
 ### Bereiter
 
-_ok, shellscript_ `scr/extractor`
+_ok, shellscript_ `src/extractor`
 
 - gestartet von `Kontroller`
 - holt Rohdaten mit `Sauger` und wandelt sie mittels Rezepten
@@ -111,10 +111,19 @@ _ok, shellscript_ `src/fetcher`
 _shellscript_ `src/planner`
 
 - erstellt `SendeTexte` (formatierte Texte) via Filesystem fuer `Sendechef`,
-  basierend auf aktuellem Status und _Durchsatzoptimierung_
+  basierend auf aktuellem Status und Durchsatzoptimierung
 - erzeugt Filenamen aufsteigend je Kanalprefix
 - erzeugt Sendeplan zur Uebertragung zu vordefinierten Zeiten
 - eine Instanz je Kanalprefix
+
+### Durchsatz-Optimierer
+
+_shellscript_ `src/optimize`
+
+- berechnet beste Anordnung der `SendeTexte` (aus stdin) und gibt sie
+  umgestellt wieder aus (stdout)
+- stdin&stdout: Liste der Textdateinamen und ihrer jeweiligen Kosten
+- Argumente: Dateien mit Kostenfunktions-Parametern und Kanalkonfiguration
 
 ### Sendechef
 
@@ -134,7 +143,7 @@ _shellscript_ `scr/sender`
 
 ## Signale
 
-### HUP,STOP
+### SIGDAEMONTERMINATE
 
 - Abbruchsignal
 - von ambros.sh
@@ -146,7 +155,7 @@ _shellscript_ `scr/sender`
 - von extern
 - fuer ambros.sh
 
-### USR1
+### SIGDAEMONRESTART
 
 - Signal zum Neulesen der Konfiguration und Neustart
 - von ambros.sh
@@ -253,7 +262,7 @@ Skript, Zusatzprogrammen zum Morsen sowie evtl Kommunikationsverbindungen
 
 #### allgemeine Kosten:
 
-- Leerzeit in Zeitscheibe: `q.n=Zeit([Prio.10-49]/Zeitscheibenlaenge)`
+- Leerzeit in Zeitscheibe: `q.n=Zeit([Prio.10-59]/Zeitscheibenlaenge)`
 - Konstanten in Kostenfunktion: `k.A, k.P, g.(), f.()`
 
 #### Einzelkosten:
@@ -331,4 +340,3 @@ Bit 7 muss gesetzt sein fuer Morsedaten, geloescht fuer Steuerdaten
 - 1 = Tempo in WPM mit 1 Byte Argument, minimal Tempo 1WPM, maximal Tempo 255WPM; "Tempo 0" wird ignoriert, folglich am einfachsten 0 fuer Start-&Stopbyte; *muss* vor ersten Morsedaten gegeben sein, sonst Default-Tempo; Tempo-Basis ist PARIS
 - 0x20 .. 0x2F = Kommentar (inkl Argument komplett ignoriert)
 
----
