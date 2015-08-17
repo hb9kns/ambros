@@ -197,12 +197,12 @@ done
 }
 
 # wait for extractor-defined next poll time, in steps of 10sec
-delta=`date +%s`
+delta=`nowsec`
 nextpoll=`configread $extractorfile NEXTPOLL` || nextpoll=$delta
 nextpoll=`expr $nextpoll - 10`
 delta=`expr $nextpoll - $delta`
-logit $logf wait about $delta sec until next polling
-while test `date +%s` -lt $nextpoll
+logit $logf wait approx $delta sec until next polling
+while test `nowsec` -lt $nextpoll
 do
  sleep 10
  if test $AMBROSABORT -ne 0

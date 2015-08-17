@@ -84,7 +84,7 @@ _ok, shellscript_ `src/morse/sniptime`
 
 _ok, shellscript_ `src/ambros`
 
-- startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
+- startet und ueberwacht je Kanal einen `Planer` und einen `Sendechef`
 - ruft Quellen regelmaessig ab mittels `Bereiter`
 - Argument: Konfigurationsdatei im Kanalverzeichnis
 
@@ -340,3 +340,4 @@ Bit 7 muss gesetzt sein fuer Morsedaten, geloescht fuer Steuerdaten
 - 1 = Tempo in WPM mit 1 Byte Argument, minimal Tempo 1WPM, maximal Tempo 255WPM; "Tempo 0" wird ignoriert, folglich am einfachsten 0 fuer Start-&Stopbyte; *muss* vor ersten Morsedaten gegeben sein, sonst Default-Tempo; Tempo-Basis ist PARIS
 - 0x20 .. 0x2F = Kommentar (inkl Argument komplett ignoriert)
 
+---
