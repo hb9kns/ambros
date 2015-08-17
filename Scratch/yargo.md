@@ -84,7 +84,7 @@ _ok, shellscript_ `src/morse/sniptime`
 
 _ok, shellscript_ `src/ambros`
 
-- startet und ueberwacht je Kanal einen `Schneider` und einen `Sendechef`
+- startet und ueberwacht je Kanal einen `Planer` und einen `Sendechef`
 - ruft Quellen regelmaessig ab mittels `Bereiter`
 - Argument: Konfigurationsdatei im Kanalverzeichnis
 
