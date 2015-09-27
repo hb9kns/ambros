@@ -8,7 +8,7 @@
 . $SCRIPTDIR/constants.sh
 
 # save channel name for reference - but we should already be in that directory
-chan=$1
+chan=${1:UNKNOWN}
 
 myself=planner-$chan
 logf=`logfile $myself`
@@ -36,7 +36,7 @@ fi
 
 # handler for restarting/reloading
 restart () {
- logit $logf signal reloading configuration files and restarting
+ logit $logf signal "(re)loading config, (re)starting"
  RESTARTPLANNER=1
 }
 # flag initially _set_ to force initializing during launch
@@ -54,20 +54,20 @@ trap finish $SIGDAEMONTERMINATE
 
 while test ABORTPLANNER -eq 0
 # reduce load in case of severe bugs/problems
-do sleep 3
+do sleep 1
 if test $RESTARTPLANNER -eq 1
 then
  sources=`configread $CHANNELCONFIG SOURCES ',:;'`
- logit $logf config sources: $sources"
+ logit $logf config "sources: $sources"
 # last resource default: no postprocessor, i.e `cat`
  postprocessor=`configread $CHANNELCONFIG POSTPROCESSOR`
  postprocessor=${postprocessor:-/bin/cat}
- logit $logf config postprocessor: $postprocessor
-# last resource defaults: ToC length 2min, ToC retransmission period 3 slices
+ logit $logf config "postprocessor: $postprocessor"
+# desperate defaults: ToC length 2min, ToC period 5 slices
  toclength=`configread $CHANNELCONFIG TOCLENGTH`
  toclength=${toclength:-120}
  tocslices=`configread $CHANNELCONFIG TOCSLICES`
- tocslices=${tocslices:-3}
+ tocslices=${tocslices:-5}
 # do not restart until signal received again
  RESTARTPLANNER=0
 fi
