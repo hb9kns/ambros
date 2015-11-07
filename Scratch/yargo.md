@@ -295,6 +295,10 @@ n="Unsicherheitsfaktor Zukunft"
 
 ---
 
+## Ideen
+
+- [Coonstrained optimization]( https://en.wikipedia.org/wiki/Constraint_optimization )
+
 ---
 
 # Archiv / Abfall
