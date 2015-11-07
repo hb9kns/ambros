@@ -39,7 +39,7 @@ Verzeichnisstruktur:
 
 #### Variablen
 
-- XXXSTATUS: oberste aktuell laufende XXX-Prioritaet (20=PPP, falls keine)
+- XXXSTATUS: oberste aktuell laufende XXX-Prioritaet (25=PPP, falls keine)
 
 ### Quelle
 
@@ -182,7 +182,7 @@ PBL-Zeilen mit anderem als Buchstaben an erster Stelle werden ignoriert (Komment
 
 - _Prefix_ `_a..z` (Kanalselektor falls mehrere Sendekanaele, `_` fuer alle)
 - _Prio_ Zahl `10..99` (`0..9` reserviert)
-- _Index_ Ganzzahl (`0[0*]` ist reserviert fuer XXX)
+- _Index_ Ganzzahl (`[0*]0` ist reserviert fuer XXX)
 - _Suffix_ `.txt`
 - normalerweise im 8.3-Schema PNNMMMMM.YYY, dh Index mindestens bis zu 1E5-1;
   zB `a4000123.txt` (Kanal a, Prio 40, Nr.123)
